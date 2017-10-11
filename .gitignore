@@ -1,0 +1,12 @@
+# ignore these files
+*.p
+*.jpg
+*.JPG
+*.prj
+*.PNG
+*.png
+
+# ignore these floder
+package
+toto_liunx
+toto_resources
