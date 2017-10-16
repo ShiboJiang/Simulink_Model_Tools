@@ -1,27 +1,27 @@
 %------------------------------------------------------------------------------
-%   Simulink scrip for patameters adding as uint8.
+%   Simulink scrip for patameters adding as defined.
 %   MATLAB version: R2016a
 %   Author: Shibo Jiang 
-%   Version: 0.1
+%   Version: 0.2
 %   Instructions: 
 %------------------------------------------------------------------------------
-%   用于定义simulink变量的脚本
+%   用于定义simulink变量的脚本，数据类型为变量名字后缀
 %   MATLAB 版本: R2016a
 %   作者: 姜世博 
-%   版本:    0.1
+%   版本:    0.2
 %   说明: 
 %------------------------------------------------------------------------------
 
-function add_parameter_result = add_sig_parameter_u8()
+function add_parameter_result = add_sig_parameter()
 
 paraModel = bdroot;
 
 % Original matalb version is R2016a
 % 检查Matlab版本是否为R2016a
-CorrectVersion = '9.0.0.341360 (R2016a)';
+CorrectVersion = '9.2.0.556344 (R2017a)';
 CurrentVersion = version;
 if 1 ~= strcmp(CorrectVersion,CurrentVersion);
-    %warning('Matlab version mismatch, this scrip should be used for Matlab R2016a'); 
+   warning('Matlab version mismatch, this scrip should be used for Matlab R2016a'); 
 end
 
 % Original environment character encoding: GBK
@@ -34,8 +34,8 @@ end
 all_line = find_system(paraModel,'FindAll','on','type','line');
 % Parameters define
 k = 1;
-length_line = length(all_line);
 named_flag = 0;
+length_line = length(all_line);
 % Find the line which have name
 for i = 1:length_line
     % Detect 'Signal name'
@@ -54,7 +54,7 @@ for i = 1:length_line
         k = k + 1;
         named_flag = 1;
     else
-        % Do nothing ,keep named_flag = 0;
+        % Do nothing,keep named_flag = 0;
     end
 end
 
@@ -109,16 +109,42 @@ else
 end
 
 % auto add variables in simulink workspace
-data_type_cfg = 'uint8';
 if 1 == var_define_enable
     length_add_var = length(var_need_defined);
     for i = 1:length_add_var
         name_defined = var_need_defined{i};
+        % get the parameter datatpye
+        data_type = name_defined(end-2:end);
+        % translate the upper to lower
+        data_type = lower(data_type);
+
+        % calculate the data type config
+        switch data_type
+        case '_u8'
+            data_type_cfg = 'uint8';
+        case 'u16'
+            data_type_cfg = 'uint16';
+        case 'u32'
+            data_type_cfg = 'uint32';
+        case 'f32'
+            data_type_cfg = 'single';
+        case 'f64'
+            data_type_cfg = 'double';
+        case '_s8'
+            data_type_cfg = 'int8';
+        case 's16'
+            data_type_cfg = 'int16';
+        case 's32'
+            data_type_cfg = 'int32';
+        case '_bl'
+            data_type_cfg = 'boolean';
+        otherwise
+            data_type_cfg = 'uint8';
+        end
+        % add the parameter
         try
         temp_defined = Simulink.Signal;
         temp_defined.DataType =  data_type_cfg;
-        % eval([name_defined '= temp_defined']);
-        % clear temp_defined;
         assignin('base',name_defined,temp_defined);
         catch
             % do nothing
