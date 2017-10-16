@@ -1,27 +1,23 @@
-%---------------------------------------------------------------------------
-%   Simulink scrip for Autosar configuration set 
+%------------------------------------------------------------------------------
+%   Simulink scrip for patameters adding as defined.
 %   MATLAB version: R2017a
-%   Please read the document <»ùÓÚAutosarÅäÖÃËµÃ÷ÎÄµµ v0.8> to learn details.
-%   Shibo Jiang    2017/9/8
-%   Version: 0.8
-%   Instructions: Run this scrip in matlab command,and one model should be 
-%                 opened at least. 
-%---------------------------------------------------------------------------
-%   ÊÊÅäAutosarÄ¿±êµÄsimulinkÄ£ÐÍÅäÖÃ½Å±¾
-%   MATLAB °æ±¾: R2017a
-%   ¾ßÌåÃ¿ÏîÄÚÈÝ¿ÉÒÔ²Î¿¼¡¶»ùÓÚAutosarÅäÖÃËµÃ÷ÎÄµµ v0.8¡·ÎÄµµÄÚÈÝ
-%   ½ªÊÀ²©         2017/9/8
-%   °æ±¾:    0.8
-%   ËµÃ÷: ÔÚmatlabÃüÁî´°¸ñÖ±½ÓÔËÐÐ´Ë½Å±¾
-%         ÐèÒª×¢ÒâÖÁÉÙ´ò¿ªÒ»¸öÄ£ÐÍ½øÐÐÅäÖÃ¡£
-%---------------------------------------------------------------------------
+%   Author: Shibo Jiang 
+%   Version: 0.2
+%   Instructions: 
+%------------------------------------------------------------------------------
+%   ç”¨äºŽå®šä¹‰simulinkå˜é‡çš„è„šæœ¬ï¼Œæ•°æ®ç±»åž‹ä¸ºå˜é‡åå­—åŽç¼€
+%   MATLAB ç‰ˆæœ¬: R2017a
+%   ä½œè€…: å§œä¸–åš 
+%   ç‰ˆæœ¬:    0.2
+%   è¯´æ˜Ž: 
+%------------------------------------------------------------------------------
 
-function Configurate = Autosar_configuration()
+function add_parameter_result = add_sig_parameter()
 
 paraModel = bdroot;
 
-% Original matalb version is R2016a
-% ¼ì²éMatlab°æ±¾ÊÇ·ñÎªR2016a
+% Original matalb version is R2017a
+% æ£€æŸ¥Matlabç‰ˆæœ¬æ˜¯å¦ä¸ºR2017a
 CorrectVersion = '9.2.0.556344 (R2017a)';
 CurrentVersion = version;
 if 1 ~= strcmp(CorrectVersion,CurrentVersion);
@@ -29,430 +25,134 @@ if 1 ~= strcmp(CorrectVersion,CurrentVersion);
 end
 
 % Original environment character encoding: GBK
-% ½Å±¾±àÂë»·¾³ÊÇ·ñÎªGBK
+% è„šæœ¬ç¼–ç çŽ¯å¢ƒæ˜¯å¦ä¸ºGBK
 if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
-    warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',  get_param(0, 'CharacterEncoding'), 'GBK');
+    warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',...
+           get_param(0, 'CharacterEncoding'), 'GBK');
 end
 
-% Original configuration set target is autosar.tlc
-% ½«´úÂëÉú³ÉÄ¿±êÄ£°åÉèÖÃÎª autosar.tlc
-myConfigObj=getActiveConfigSet(paraModel);
-try
-    switchTarget(myConfigObj, 'autosar.tlc', '');
-catch ME
-    disp(ME.message);
-    disp('Setting ''System target file'' to ''ert.tlc''.');
-    switchTarget(myConfigObj, 'ert.tlc', '');
+all_line = find_system(paraModel,'FindAll','on','type','line');
+% Parameters define
+k = 1;
+named_flag = 0;
+length_line = length(all_line);
+% Find the line which have name
+for i = 1:length_line
+    % Detect 'Signal name'
+    current_line_name = get(all_line(i),'Name');
+     % judge whether signal has name 
+    if 1 == isempty(current_line_name)
+        % no name
+        ne_flag = 1;
+    else
+        % have name
+        ne_flag = 0;
+    end
+    % collect signals name
+    if  0 == ne_flag
+        named_signals_line(k) = all_line(i);
+        k = k + 1;
+        named_flag = 1;
+    else
+        % Do nothing,keep named_flag = 0;
+    end
 end
 
-% Do not change the order of the following commands. There are dependencies between the parameters.
-% ²»ÒªÐÞ¸ÄÈçÏÂÃüÁîÐÐµÄË³Ðò£¬Ïà»¥Ö®¼äÓÐÒÀÀµ¹ØÏµ
+% find simulink's variables
+simulink_var_space = get_param(paraModel,'ModelWorkspace');
+simulink_var = simulink_var_space.whos;
+if 1 == isempty(simulink_var)
+    % no variable defined
+    simulink_var_flag = 0;
+else
+    % have some variables defined
+    simulink_var_flag = 1;
+end
 
-set_param(paraModel, 'HardwareBoard', 'None');   % Hardware board
+% judge whether signal's name have been defined to variables
+var_define_enable = 0;
+% have signal names and have some variables defined
+if (1 == named_flag)&&(1 == simulink_var_flag)
+    length_named_line = length(named_signals_line);
+    length_var = length(simulink_var);
+    k = 1;
+    for i = 1:length_named_line
+        signal_name = get(named_signals_line(i),'Name');
+        for j = 1:length_var
+            var_name = simulink_var(j).name;
+            if 1 == strcmp(signal_name,var_name)
+                break;
+            else
+                % collect name which need be defined 
+                if length_var == j
+                    var_need_defined{k} = signal_name;
+                    k = k + 1;
+                    var_define_enable = 1;
+                else
+                    % Do nothing ,wrong state
+                end        
+            end
+        end
+    end  
+% have signal names and have no variables defined          
+elseif (1 == named_flag)&&(0 == simulink_var_flag)
+    length_named_line = length(named_signals_line);
+    k = 1;
+    for i = 1:length_named_line
+        var_need_defined{k} = get(named_signals_line(i),'Name');
+        k = k + 1;
+    end
+    var_define_enable = 1;
+% have no signal names, do not auto define variables    
+else    
+    % Do nothing
+end
 
-% Solver
-set_param(paraModel, 'StartTime', '0.0');   % Start time
-set_param(paraModel, 'StopTime', 'inf');   % Stop time
-set_param(paraModel, 'SolverType', 'Fixed-step');   % Type
-set_param(paraModel, 'EnableConcurrentExecution', 'off');   % Show concurrent execution options
-set_param(paraModel, 'SampleTimeConstraint', 'Unconstrained');   % Periodic sample time constraint
-set_param(paraModel, 'Solver', 'FixedStepDiscrete');   % Solver
-set_param(paraModel, 'FixedStep', '0.002');   % Fixed-step size (fundamental sample time)
-set_param(paraModel, 'EnableMultiTasking', 'on');   % Treat each discrete rate as a separate task
-set_param(paraModel, 'AutoInsertRateTranBlk', 'off');   % Automatically handle rate transition for data transfer
-set_param(paraModel, 'PositivePriorityOrder', 'off');   % Higher priority value indicates higher task priority
+% auto add variables in simulink workspace
+if 1 == var_define_enable
+    length_add_var = length(var_need_defined);
+    for i = 1:length_add_var
+        name_defined = var_need_defined{i};
+        % get the parameter datatpye
+        data_type = name_defined(end-2:end);
+        % translate the upper to lower
+        data_type = lower(data_type);
 
-% Data Import/Export
-set_param(paraModel, 'LoadExternalInput', 'off');   % Load external input
-set_param(paraModel, 'LoadInitialState', 'off');   % Load initial state
-set_param(paraModel, 'SaveTime', 'off');   % Save time
-set_param(paraModel, 'SaveState', 'off');   % Save states
-set_param(paraModel, 'SaveFormat', 'Dataset');   % Format
-set_param(paraModel, 'SaveOutput', 'off');   % Save output
-set_param(paraModel, 'SaveFinalState', 'off');   % Save final state
-set_param(paraModel, 'SignalLogging', 'on');   % Signal logging
-set_param(paraModel, 'SignalLoggingName', 'logsout');   % Signal logging name
-set_param(paraModel, 'DSMLogging', 'on');   % Data stores
-set_param(paraModel, 'DSMLoggingName', 'dsmout');   % Data stores logging name
-set_param(paraModel, 'LoggingToFile', 'off');   % Log Dataset data to file
-set_param(paraModel, 'DatasetSignalFormat', 'timeseries');   % DatasetSignalFormat
-set_param(paraModel, 'ReturnWorkspaceOutputs', 'off');   % Single simulation output
-set_param(paraModel, 'InspectSignalLogs', 'off');   % Record logged workspace data in Simulation Data Inspector
-set_param(paraModel, 'LimitDataPoints', 'on');   % Limit data points
-set_param(paraModel, 'MaxDataPoints', '1000');   % Maximum number of data points
-set_param(paraModel, 'Decimation', '1');   % Decimation
-
-% Optimization
-set_param(paraModel, 'BlockReduction', 'on');   % Block reduction
-set_param(paraModel, 'ConditionallyExecuteInputs', 'on');   % Conditional input branch execution
-set_param(paraModel, 'BooleanDataType', 'on');   % Implement logic signals as Boolean data (vs. double)
-set_param(paraModel, 'LifeSpan', 'inf');   % Application lifespan (days)
-set_param(paraModel, 'UseDivisionForNetSlopeComputation', 'off');   % Use division for fixed-point net slope computation
-set_param(paraModel, 'UseFloatMulNetSlope', 'off');   % Use floating-point multiplication to handle net slope corrections
-set_param(paraModel, 'DefaultUnderspecifiedDataType', 'single');   % Default for underspecified data type
-set_param(paraModel, 'UseSpecifiedMinMax', 'off');   % Optimize using the specified minimum and maximum values
-set_param(paraModel, 'ZeroExternalMemoryAtStartup', 'off');   % Remove root level I/O zero initialization
-set_param(paraModel, 'InitFltsAndDblsToZero', 'off');   % Use memset to initialize floats and doubles to 0.0
-set_param(paraModel, 'ZeroInternalMemoryAtStartup', 'on');   % Remove internal data zero initialization
-set_param(paraModel, 'EfficientFloat2IntCast', 'off');   % Remove code from floating-point to integer conversions that wraps out-of-range values
-set_param(paraModel, 'EfficientMapNaN2IntZero', 'off');   % Remove code from floating-point to integer conversions with saturation that maps NaN to zero
-set_param(paraModel, 'NoFixptDivByZeroProtection', 'off');   % Remove code that protects against division arithmetic exceptions
-set_param(paraModel, 'SimCompilerOptimization', 'off');   % Compiler optimization level
-set_param(paraModel, 'AccelVerboseBuild', 'off');   % Verbose accelerator builds
-set_param(paraModel, 'DefaultParameterBehavior', 'Inlined');   % Default parameter behavior
-set_param(paraModel, 'OptimizeBlockIOStorage', 'on');   % Signal storage reuse
-set_param(paraModel, 'LocalBlockOutputs', 'on');   % Enable local block outputs
-set_param(paraModel, 'ExpressionFolding', 'on');   % Eliminate superfluous local variables (expression folding)
-set_param(paraModel, 'BufferReuse', 'on');   % Reuse local block outputs
-set_param(paraModel, 'GlobalBufferReuse', 'on');   % Reuse global block outputs
-set_param(paraModel, 'GlobalVariableUsage', 'Use global to hold temporary results');   % Optimize global data access
-set_param(paraModel, 'OptimizeBlockOrder', 'off');   % Optimize block operation order in the generated code
-set_param(paraModel, 'OptimizeDataStoreBuffers', 'on');   % Reuse buffers for Data Store Read and Data Store Write blocks
-set_param(paraModel, 'BusAssignmentInplaceUpdate', 'on');   % Perform inplace updates for Bus Assignment blocks
-set_param(paraModel, 'StrengthReduction', 'off');   % Simplify array indexing
-set_param(paraModel, 'EnableMemcpy', 'on');   % Use memcpy for vector assignment
-set_param(paraModel, 'MemcpyThreshold', 64);   % Memcpy threshold (bytes)
-set_param(paraModel, 'BooleansAsBitfields', 'off');   % Pack Boolean data into bitfields
-set_param(paraModel, 'InlineInvariantSignals', 'off');   % Inline invariant signals
-set_param(paraModel, 'RollThreshold', 5);   % Loop unrolling threshold
-set_param(paraModel, 'MaxStackSize', 'Inherit from target');   % Maximum stack size (bytes)
-set_param(paraModel, 'PassReuseOutputArgsAs', 'Individual arguments');   % Pass reusable subsystem outputs as
-set_param(paraModel, 'StateBitsets', 'off');   % Use bitsets for storing state configuration
-set_param(paraModel, 'DataBitsets', 'off');   % Use bitsets for storing Boolean data
-set_param(paraModel, 'ActiveStateOutputEnumStorageType', 'Native Integer');   % Base storage type for automatically created enumerations
-set_param(paraModel, 'AdvancedOptControl', '');   % AdvancedOptControl
-set_param(paraModel, 'BufferReusableBoundary', 'off');   % BufferReusableBoundary
-set_param(paraModel, 'PassReuseOutputArgsThreshold', 12);   % Threshold
-
-% Diagnostics
-set_param(paraModel, 'AlgebraicLoopMsg', 'error');   % Algebraic loop
-set_param(paraModel, 'ArtificialAlgebraicLoopMsg', 'error');   % Minimize algebraic loop
-set_param(paraModel, 'BlockPriorityViolationMsg', 'error');   % Block priority violation
-set_param(paraModel, 'MinStepSizeMsg', 'warning');   % Min step size violation
-set_param(paraModel, 'TimeAdjustmentMsg', 'none');   % Sample hit time adjusting
-set_param(paraModel, 'MaxConsecutiveZCsMsg', 'error');   % Consecutive zero crossings violation
-set_param(paraModel, 'UnknownTsInhSupMsg', 'error');   % Unspecified inheritability of sample time
-set_param(paraModel, 'ConsistencyChecking', 'none');   % Solver data inconsistency
-set_param(paraModel, 'SolverPrmCheckMsg', 'error');   % Automatic solver parameter selection
-set_param(paraModel, 'ModelReferenceExtraNoncontSigs', 'error');   % Extraneous discrete derivative signals
-set_param(paraModel, 'StateNameClashWarn', 'warning');   % State name clash
-set_param(paraModel, 'SimStateInterfaceChecksumMismatchMsg', 'warning');   % SimState interface checksum mismatch
-set_param(paraModel, 'SimStateOlderReleaseMsg', 'error');   % SimState object from earlier release
-set_param(paraModel, 'InheritedTsInSrcMsg', 'error');   % Source block specifies -1 sample time
-set_param(paraModel, 'MultiTaskRateTransMsg', 'error');   % Multitask rate transition
-set_param(paraModel, 'SingleTaskRateTransMsg', 'error');   % Single task rate transition
-set_param(paraModel, 'MultiTaskCondExecSysMsg', 'error');   % Multitask conditionally executed subsystem
-set_param(paraModel, 'TasksWithSamePriorityMsg', 'error');   % Tasks with equal priority
-set_param(paraModel, 'SigSpecEnsureSampleTimeMsg', 'error');   % Enforce sample times specified by Signal Specification blocks
-set_param(paraModel, 'SignalResolutionControl', 'UseLocalSettings');   % Signal resolution
-set_param(paraModel, 'CheckMatrixSingularityMsg', 'error');   % Division by singular matrix
-set_param(paraModel, 'IntegerSaturationMsg', 'error');   % Saturate on overflow
-set_param(paraModel, 'UnderSpecifiedDataTypeMsg', 'error');   % Underspecified data types
-set_param(paraModel, 'SignalRangeChecking', 'error');   % Simulation range checking
-set_param(paraModel, 'IntegerOverflowMsg', 'error');   % Wrap on overflow
-set_param(paraModel, 'SignalInfNanChecking', 'error');   % Inf or NaN block output
-set_param(paraModel, 'RTPrefix', 'error');   % "rt" prefix for identifiers
-set_param(paraModel, 'ParameterDowncastMsg', 'error');   % Detect downcast
-set_param(paraModel, 'ParameterOverflowMsg', 'error');   % Detect overflow
-set_param(paraModel, 'ParameterUnderflowMsg', 'error');   % Detect underflow
-set_param(paraModel, 'ParameterPrecisionLossMsg', 'error');   % Detect precision loss
-set_param(paraModel, 'ParameterTunabilityLossMsg', 'error');   % Detect loss of tunability
-set_param(paraModel, 'ReadBeforeWriteMsg', 'EnableAllAsError');   % Detect read before write
-set_param(paraModel, 'WriteAfterReadMsg', 'EnableAllAsError');   % Detect write after read
-set_param(paraModel, 'WriteAfterWriteMsg', 'EnableAllAsError');   % Detect write after write
-set_param(paraModel, 'MultiTaskDSMMsg', 'error');   % Multitask data store
-set_param(paraModel, 'UniqueDataStoreMsg', 'error');   % Duplicate data store names
-set_param(paraModel, 'UnderspecifiedInitializationDetection', 'Simplified');   % Underspecified initialization detection
-set_param(paraModel, 'ArrayBoundsChecking', 'none');   % Array bounds exceeded
-set_param(paraModel, 'AssertControl', 'DisableAll');   % Model Verification block enabling
-set_param(paraModel, 'AllowSymbolicDim', 'off');   % Allow symbolic dimension specification
-set_param(paraModel, 'UnnecessaryDatatypeConvMsg', 'warning');   % Unnecessary type conversions
-set_param(paraModel, 'VectorMatrixConversionMsg', 'error');   % Vector/matrix block input conversion
-set_param(paraModel, 'Int32ToFloatConvMsg', 'warning');   % 32-bit integer to single precision float conversion
-set_param(paraModel, 'FixptConstUnderflowMsg', 'none');   % Detect underflow
-set_param(paraModel, 'FixptConstOverflowMsg', 'none');   % Detect overflow
-set_param(paraModel, 'FixptConstPrecisionLossMsg', 'none');   % Detect precision loss
-set_param(paraModel, 'SignalLabelMismatchMsg', 'error');   % Signal label mismatch
-set_param(paraModel, 'UnconnectedInputMsg', 'error');   % Unconnected block input ports
-set_param(paraModel, 'UnconnectedOutputMsg', 'error');   % Unconnected block output ports
-set_param(paraModel, 'UnconnectedLineMsg', 'error');   % Unconnected line
-set_param(paraModel, 'RootOutportRequireBusObject', 'error');   % Unspecified bus object at root Outport block
-set_param(paraModel, 'BusObjectLabelMismatch', 'error');   % Element name mismatch
-set_param(paraModel, 'StrictBusMsg', 'ErrorOnBusTreatedAsVector');   % Bus signal treated as vector
-set_param(paraModel, 'NonBusSignalsTreatedAsBus', 'error');   % Non-bus signals treated as bus signals
-set_param(paraModel, 'BusNameAdapt', 'WarnAndRepair');   % Repair bus selections
-set_param(paraModel, 'InvalidFcnCallConnMsg', 'error');   % Invalid function-call connection
-set_param(paraModel, 'FcnCallInpInsideContextMsg', 'error');   % Context-dependent inputs
-set_param(paraModel, 'SFcnCompatibilityMsg', 'error');   % S-function upgrades needed
-set_param(paraModel, 'FrameProcessingCompatibilityMsg', 'error');   % Block behavior depends on frame status of signal
-set_param(paraModel, 'ModelReferenceVersionMismatchMessage', 'error');   % Model block version mismatch
-set_param(paraModel, 'ModelReferenceIOMismatchMessage', 'error');   % Port and parameter mismatch
-set_param(paraModel, 'ModelReferenceIOMsg', 'error');   % Invalid root Inport/Outport block connection
-set_param(paraModel, 'ModelReferenceDataLoggingMessage', 'error');   % Unsupported data logging
-set_param(paraModel, 'SaveWithDisabledLinksMsg', 'warning');   % Block diagram contains disabled library links
-set_param(paraModel, 'SaveWithParameterizedLinksMsg', 'warning');   % Block diagram contains parameterized library links
-set_param(paraModel, 'SFUnusedDataAndEventsDiag', 'warning');   % Unused data, events, messages and functions
-set_param(paraModel, 'SFUnexpectedBacktrackingDiag', 'error');   % Unexpected backtracking
-set_param(paraModel, 'SFInvalidInputDataAccessInChartInitDiag', 'error');   % Invalid input data access in chart initialization
-set_param(paraModel, 'SFNoUnconditionalDefaultTransitionDiag', 'error');   % No unconditional default transitions
-set_param(paraModel, 'SFTransitionOutsideNaturalParentDiag', 'error');   % Transition outside natural parent
-set_param(paraModel, 'SFUnreachableExecutionPathDiag', 'warning');   % Unreachable execution path
-set_param(paraModel, 'SFUndirectedBroadcastEventsDiag', 'warning');   % Undirected event broadcasts
-set_param(paraModel, 'SFTransitionActionBeforeConditionDiag', 'warning');   % Transition action specified before condition action
-set_param(paraModel, 'SFOutputUsedAsStateInMooreChartDiag', 'warning');   % Read-before-write to output in Moore chart
-set_param(paraModel, 'SFTemporalDelaySmallerThanSampleTimeDiag', 'warning');   % Absolute time temporal value shorter than sampling period
-set_param(paraModel, 'SFSelfTransitionDiag', 'warning');   % Self-transition on leaf state
-set_param(paraModel, 'SFExecutionAtInitializationDiag', 'warning');   % 'Execute-at-initialization' disabled in presence of input events
-set_param(paraModel, 'SFMachineParentedDataDiag', 'warning');   % Use of machine-parented data instead of Data Store Memory
-set_param(paraModel, 'IgnoredZcDiagnostic', 'warning');   % IgnoredZcDiagnostic
-set_param(paraModel, 'InitInArrayFormatMsg', 'warning');   % InitInArrayFormatMsg
-set_param(paraModel, 'MaskedZcDiagnostic', 'warning');   % MaskedZcDiagnostic
-set_param(paraModel, 'ModelReferenceSymbolNameMessage', 'warning');   % ModelReferenceSymbolNameMessage
-set_param(paraModel, 'AllowedUnitSystems', 'all');   % Allowed unit systems
-set_param(paraModel, 'UnitsInconsistencyMsg', 'warning');   % Units inconsistency messages
-set_param(paraModel, 'AllowAutomaticUnitConversions', 'on');   % Allow automatic unit conversions
-
-% Hardware Implementation
-set_param(paraModel, 'ProdHWDeviceType', 'Infineon->TriCore');   % Production device vendor and type
-set_param(paraModel, 'ProdLongLongMode', 'off');   % Support long long in production hardware
-set_param(paraModel, 'ProdLargestAtomicInteger', 'Char');   % Production hardware largest atomic integer size
-set_param(paraModel, 'ProdLargestAtomicFloat', 'Float');   % Production hardware largest atomic floating-point size
-set_param(paraModel, 'ProdIntDivRoundTo', 'Zero');   % Production hardware signed integer division rounds to
-set_param(paraModel, 'ProdEqTarget', 'on');   % Test hardware is the same as production hardware
-set_param(paraModel, 'TargetPreprocMaxBitsSint', 32);   % TargetPreprocMaxBitsSint
-set_param(paraModel, 'TargetPreprocMaxBitsUint', 32);   % TargetPreprocMaxBitsUint
-
-% Model Referencing
-set_param(paraModel, 'UpdateModelReferenceTargets', 'IfOutOfDateOrStructuralChange');   % Rebuild
-set_param(paraModel, 'EnableParallelModelReferenceBuilds', 'off');   % Enable parallel model reference builds
-set_param(paraModel, 'ModelReferenceNumInstancesAllowed', 'Multi');   % Total number of instances allowed per top model
-set_param(paraModel, 'PropagateVarSize', 'Infer from blocks in model');   % Propagate sizes of variable-size signals
-set_param(paraModel, 'ModelReferenceMinAlgLoopOccurrences', 'off');   % Minimize algebraic loop occurrences
-set_param(paraModel, 'EnableRefExpFcnMdlSchedulingChecks', 'on');   % Enable strict scheduling checks for referenced export-function models
-set_param(paraModel, 'PropagateSignalLabelsOutOfModel', 'on');   % Propagate all signal labels out of the model
-set_param(paraModel, 'ModelReferencePassRootInputsByReference', 'off');   % Pass fixed-size scalar root inputs by value for code generation
-set_param(paraModel, 'ModelDependencies', '');   % Model dependencies
-set_param(paraModel, 'ParallelModelReferenceErrorOnInvalidPool', 'on');   % ParallelModelReferenceErrorOnInvalidPool
-set_param(paraModel, 'SupportModelReferenceSimTargetCustomCode', 'off');   % SupportModelReferenceSimTargetCustomCode
-
-% Simulation Target
-set_param(paraModel, 'MATLABDynamicMemAlloc', 'off');   % Dynamic memory allocation in MATLAB Function blocks
-set_param(paraModel, 'CompileTimeRecursionLimit', 50);   % Compile-time recursion limit for MATLAB functions
-set_param(paraModel, 'EnableRuntimeRecursion', 'on');   % Enable run-time recursion for MATLAB functions
-set_param(paraModel, 'SFSimEcho', 'on');   % Echo expressions without semicolons
-set_param(paraModel, 'SimCtrlC', 'on');   % Ensure responsiveness
-set_param(paraModel, 'SimIntegrity', 'on');   % Ensure memory integrity
-set_param(paraModel, 'SimGenImportedTypeDefs', 'off');   % Generate typedefs for imported bus and enumeration types
-set_param(paraModel, 'SimBuildMode', 'sf_incremental_build');   % Simulation target build mode
-set_param(paraModel, 'SimReservedNameArray', []);   % Reserved names
-set_param(paraModel, 'SimParseCustomCode', 'off');   % Parse custom code symbols
-set_param(paraModel, 'SimCustomSourceCode', '');   % Source file
-set_param(paraModel, 'SimCustomHeaderCode', '');   % Header file
-set_param(paraModel, 'SimCustomInitializer', '');   % Initialize function
-set_param(paraModel, 'SimCustomTerminator', '');   % Terminate function
-set_param(paraModel, 'SimUserIncludeDirs', '');   % Include directories
-set_param(paraModel, 'SimUserSources', '');   % Source files
-set_param(paraModel, 'SimUserLibraries', '');   % Libraries
-set_param(paraModel, 'SimUserDefines', '');   % Defines
-set_param(paraModel, 'SFSimEnableDebug', 'off');   % Allow setting breakpoints during simulation
-
-% Code Generation
-set_param(paraModel, 'RemoveResetFunc', 'on');   % Remove reset function
-set_param(paraModel, 'ExistingSharedCode', '');   % Existing shared code
-set_param(paraModel, 'TargetLang', 'C');   % Language
-set_param(paraModel, 'CompOptLevelCompliant', 'on');   % CompOptLevelCompliant
-set_param(paraModel, 'Toolchain', 'Automatically locate an installed toolchain');   % Toolchain
-set_param(paraModel, 'BuildConfiguration', 'Faster Builds');   % Build configuration
-set_param(paraModel, 'ObjectivePriorities', []);   % Prioritized objectives
-set_param(paraModel, 'CheckMdlBeforeBuild', 'Warning');   % Check model before generating code
-set_param(paraModel, 'SILDebugging', 'off');   % Enable source-level debugging for SIL
-set_param(paraModel, 'GenCodeOnly', 'on');   % Generate code only
-set_param(paraModel, 'PackageGeneratedCodeAndArtifacts', 'off');   % Package code and artifacts
-set_param(paraModel, 'RTWVerbose', 'off');   % Verbose build
-set_param(paraModel, 'RetainRTWFile', 'off');   % Retain .rtw file
-set_param(paraModel, 'ProfileTLC', 'off');   % Profile TLC
-set_param(paraModel, 'TLCDebug', 'off');   % Start TLC debugger when generating code
-set_param(paraModel, 'TLCCoverage', 'off');   % Start TLC coverage when generating code
-set_param(paraModel, 'TLCAssert', 'off');   % Enable TLC assertion
-set_param(paraModel, 'RTWUseSimCustomCode', 'off');   % Use the same custom code settings as Simulation Target
-set_param(paraModel, 'CustomSourceCode', '');   % Source file
-set_param(paraModel, 'CustomHeaderCode', '');   % Header file
-set_param(paraModel, 'CustomInclude', '');   % Include directories
-set_param(paraModel, 'CustomSource', '');   % Source files
-set_param(paraModel, 'CustomLibrary', '');   % Libraries
-set_param(paraModel, 'CustomLAPACKCallback', '');   % Custom LAPACK library callback
-set_param(paraModel, 'CustomDefine', '');   % Defines
-set_param(paraModel, 'CustomInitializer', '');   % Initialize function
-set_param(paraModel, 'CustomTerminator', '');   % Terminate function
-set_param(paraModel, 'CodeExecutionProfiling', 'off');   % Measure task execution time
-set_param(paraModel, 'CodeProfilingInstrumentation', 'off');   % Measure function execution times
-set_param(paraModel, 'CodeCoverageSettings', coder.coverage.CodeCoverageSettings([],'off','off','None'));   % Third-party tool
-set_param(paraModel, 'CreateSILPILBlock', 'None');   % Create block
-set_param(paraModel, 'PortableWordSizes', 'on');   % Enable portable word sizes
-set_param(paraModel, 'PostCodeGenCommand', '');   % Post code generation command
-set_param(paraModel, 'SaveLog', 'off');   % Save build log
-set_param(paraModel, 'TLCOptions', '');   % TLC command line options
-set_param(paraModel, 'GenerateReport', 'on');   % Create code generation report
-set_param(paraModel, 'LaunchReport', 'on');   % Open report automatically
-set_param(paraModel, 'IncludeHyperlinkInReport', 'on');   % Code-to-model
-set_param(paraModel, 'GenerateTraceInfo', 'on');   % Model-to-code
-set_param(paraModel, 'GenerateWebview', 'off');   % Generate model Web view
-set_param(paraModel, 'GenerateTraceReport', 'on');   % Eliminated / virtual blocks
-set_param(paraModel, 'GenerateTraceReportSl', 'on');   % Traceable Simulink blocks
-set_param(paraModel, 'GenerateTraceReportSf', 'on');   % Traceable Stateflow objects
-set_param(paraModel, 'GenerateTraceReportEml', 'on');   % Traceable MATLAB functions
-set_param(paraModel, 'GenerateCodeMetricsReport', 'on');   % Static code metrics
-set_param(paraModel, 'GenerateCodeReplacementReport', 'on');   % Summarize which blocks triggered code replacements
-set_param(paraModel, 'GenerateComments', 'on');   % Include comments
-set_param(paraModel, 'SimulinkBlockComments', 'on');   % Simulink block / Stateflow object comments
-set_param(paraModel, 'MATLABSourceComments', 'on');   % MATLAB source code as comments
-set_param(paraModel, 'ShowEliminatedStatement', 'on');   % Show eliminated blocks
-set_param(paraModel, 'ForceParamTrailComments', 'on');   % Verbose comments for SimulinkGlobal storage class
-set_param(paraModel, 'OperatorAnnotations', 'on');   % Operator annotations
-set_param(paraModel, 'InsertBlockDesc', 'on');   % Simulink block descriptions
-set_param(paraModel, 'SFDataObjDesc', 'on');   % Stateflow object descriptions
-set_param(paraModel, 'SimulinkDataObjDesc', 'on');   % Simulink data object descriptions
-set_param(paraModel, 'ReqsInCode', 'off');   % Requirements in block comments
-set_param(paraModel, 'EnableCustomComments', 'off');   % Custom comments (MPT objects only)
-set_param(paraModel, 'MATLABFcnDesc', 'on');   % MATLAB function help text
-set_param(paraModel, 'CustomSymbolStrGlobalVar', '$R$N$M');   % Global variables
-set_param(paraModel, 'CustomSymbolStrType', '$N$R$M_T');   % Global types
-set_param(paraModel, 'CustomSymbolStrField', '$N$M');   % Field name of global types
-set_param(paraModel, 'CustomSymbolStrFcn', '$R$N$M$F');   % Subsystem methods
-set_param(paraModel, 'CustomSymbolStrFcnArg', 'rt$I$N$M');   % Subsystem method arguments
-set_param(paraModel, 'CustomSymbolStrTmpVar', '$N$M');   % Local temporary variables
-set_param(paraModel, 'CustomSymbolStrBlkIO', 'rtb_$N$M');   % Local block output variables
-set_param(paraModel, 'CustomSymbolStrMacro', '$R$N$M');   % Constant macros
-set_param(paraModel, 'CustomSymbolStrUtil', '$N$C');   % Shared utilities
-set_param(paraModel, 'CustomSymbolStrEmxType', 'emxArray_$M$N');   % EMX array types identifier format
-set_param(paraModel, 'CustomSymbolStrEmxFcn', 'emx$M$N');   % EMX array utility functions identifier format
-set_param(paraModel, 'MangleLength', 4);   % Minimum mangle length
-set_param(paraModel, 'MaxIdLength', 31);   % Maximum identifier length
-set_param(paraModel, 'InternalIdentifier', 'Shortened');   % System-generated identifiers
-set_param(paraModel, 'InlinedPrmAccess', 'Literals');   % Generate scalar inlined parameters as
-set_param(paraModel, 'SignalNamingRule', 'None');   % Signal naming
-set_param(paraModel, 'ParamNamingRule', 'None');   % Parameter naming
-set_param(paraModel, 'DefineNamingRule', 'None');   % #define naming
-set_param(paraModel, 'UseSimReservedNames', 'off');   % Use the same reserved names as Simulation Target
-set_param(paraModel, 'ReservedNameArray', []);   % Reserved names
-set_param(paraModel, 'IgnoreCustomStorageClasses', 'off');   % Ignore custom storage classes
-set_param(paraModel, 'IgnoreTestpoints', 'on');   % Ignore test point signals
-set_param(paraModel, 'CommentStyle', 'Auto');   % Comment style
-set_param(paraModel, 'IncAutoGenComments', 'off');   % IncAutoGenComments
-set_param(paraModel, 'IncDataTypeInIds', 'off');   % IncDataTypeInIds
-set_param(paraModel, 'IncHierarchyInIds', 'off');   % IncHierarchyInIds
-set_param(paraModel, 'InsertPolySpaceComments', 'off');   % Insert Polyspace comments
-set_param(paraModel, 'PreserveName', 'off');   % PreserveName
-set_param(paraModel, 'PreserveNameWithParent', 'off');   % PreserveNameWithParent
-set_param(paraModel, 'CustomUserTokenString', '');   % Custom token text
-set_param(paraModel, 'TargetLangStandard', 'C89/C90 (ANSI)');   % Standard math library
-set_param(paraModel, 'CodeReplacementLibrary', 'None');   % Code replacement library
-set_param(paraModel, 'UtilityFuncGeneration', 'Shared location');   % Shared code placement
-set_param(paraModel, 'CodeInterfacePackaging', 'Nonreusable function');   % Code interface packaging
-set_param(paraModel, 'GRTInterface', 'off');   % Classic call interface
-set_param(paraModel, 'PurelyIntegerCode', 'off');   % Support floating-point numbers
-set_param(paraModel, 'SupportNonFinite', 'off');   % Support non-finite numbers
-set_param(paraModel, 'SupportComplex', 'off');   % Support complex numbers
-set_param(paraModel, 'SupportAbsoluteTime', 'off');   % Support absolute time
-set_param(paraModel, 'SupportContinuousTime', 'off');   % Support continuous time
-set_param(paraModel, 'SupportNonInlinedSFcns', 'off');   % Support non-inlined S-functions
-set_param(paraModel, 'SupportVariableSizeSignals', 'off');   % Support variable-size signals
-set_param(paraModel, 'MultiwordTypeDef', 'System defined');   % Multiword type definitions
-set_param(paraModel, 'CombineOutputUpdateFcns', 'on');   % Single output/update function
-set_param(paraModel, 'IncludeMdlTerminateFcn', 'off');   % Terminate function required
-set_param(paraModel, 'MatFileLogging', 'off');   % MAT-file logging
-set_param(paraModel, 'SuppressErrorStatus', 'on');   % Remove error status field in real-time model data structure
-set_param(paraModel, 'CombineSignalStateStructs', 'off');   % Combine signal/state structures
-set_param(paraModel, 'ParenthesesLevel', 'Maximum');   % Parentheses level
-set_param(paraModel, 'CastingMode', 'Standards');   % Casting modes
-set_param(paraModel, 'GenerateSampleERTMain', 'off');   % Generate an example main program
-set_param(paraModel, 'IncludeFileDelimiter', 'UseQuote');   % #include file delimiter
-set_param(paraModel, 'CPPClassGenCompliant', 'on');   % CPPClassGenCompliant
-set_param(paraModel, 'ConcurrentExecutionCompliant', 'off');   % ConcurrentExecutionCompliant
-set_param(paraModel, 'ERTCustomFileBanners', 'on');   % ERTCustomFileBanners
-set_param(paraModel, 'ERTFirstTimeCompliant', 'on');   % ERTFirstTimeCompliant
-set_param(paraModel, 'GenerateFullHeader', 'on');   % GenerateFullHeader
-set_param(paraModel, 'InferredTypesCompatibility', 'off');   % InferredTypesCompatibility
-set_param(paraModel, 'GenerateSharedConstants', 'on');   % Generate shared constants
-set_param(paraModel, 'ModelReferenceCompliant', 'on');   % ModelReferenceCompliant
-set_param(paraModel, 'ModelStepFunctionPrototypeControlCompliant', 'off');   % ModelStepFunctionPrototypeControlCompliant
-set_param(paraModel, 'ParMdlRefBuildCompliant', 'on');   % ParMdlRefBuildCompliant
-set_param(paraModel, 'TargetFcnLib', 'ansi_tfl_table_tmw.mat');   % TargetFcnLib
-set_param(paraModel, 'TargetLibSuffix', '');   % TargetLibSuffix
-set_param(paraModel, 'TargetPreCompLibLocation', '');   % TargetPreCompLibLocation
-set_param(paraModel, 'UseToolchainInfoCompliant', 'on');   % UseToolchainInfoCompliant
-set_param(paraModel, 'RemoveDisableFunc', 'off');   % Remove disable function
-set_param(paraModel, 'MemSecPackage', '--- None ---');   % Memory sections package for model data and functions
-set_param(paraModel, 'GlobalDataDefinition', 'Auto');   % Data definition
-set_param(paraModel, 'GlobalDataReference', 'Auto');   % Data declaration
-set_param(paraModel, 'ExtMode', 'off');   % External mode
-set_param(paraModel, 'EnableUserReplacementTypes', 'off');   % Replace data type names in the generated code
-set_param(paraModel, 'ConvertIfToSwitch', 'on');   % Convert if-elseif-else patterns to switch-case statements
-set_param(paraModel, 'ERTCustomFileTemplate', 'example_file_process.tlc');   % File customization template
-set_param(paraModel, 'ERTDataHdrFileTemplate', 'ert_code_template.cgt');   % Header file template
-set_param(paraModel, 'ERTDataSrcFileTemplate', 'ert_code_template.cgt');   % Source file template
-set_param(paraModel, 'ERTFilePackagingFormat', 'Modular');   % File packaging format
-set_param(paraModel, 'ERTHdrFileBannerTemplate', 'ert_code_template.cgt');   % Header file template
-set_param(paraModel, 'ERTSrcFileBannerTemplate', 'ert_code_template.cgt');   % Source file template
-set_param(paraModel, 'EnableDataOwnership', 'off');   % Use owner from data object for data definition placement
-set_param(paraModel, 'GenerateASAP2', 'on');   % ASAP2 interface
-set_param(paraModel, 'IndentSize', '4');   % Indent size
-set_param(paraModel, 'IndentStyle', 'Allman');   % Indent style
-set_param(paraModel, 'InlinedParameterPlacement', 'Hierarchical');   % Parameter structure
-set_param(paraModel, 'MemSecDataConstants', 'Default');   % Memory section for constants
-set_param(paraModel, 'MemSecDataIO', 'Default');   % Memory section for inputs/outputs
-set_param(paraModel, 'MemSecDataInternal', 'Default');   % Memory section for internal data
-set_param(paraModel, 'MemSecDataParameters', 'Default');   % Memory section for parameters
-set_param(paraModel, 'MemSecFuncExecute', 'Default');   % Memory section for execution functions
-set_param(paraModel, 'MemSecFuncInitTerm', 'Default');   % Memory section for initialize/terminate functions
-set_param(paraModel, 'MemSecFuncSharedUtil', 'Default');   % Memory section for shared utility functions
-set_param(paraModel, 'ParamTuneLevel', 10);   % Parameter tune level
-set_param(paraModel, 'EnableSignedLeftShifts', 'off');   % Replace multiplications by powers of two with signed bitwise shifts
-set_param(paraModel, 'EnableSignedRightShifts', 'off');   % Allow right shifts on signed integers
-set_param(paraModel, 'PreserveExpressionOrder', 'on');   % Preserve operand order in expression
-set_param(paraModel, 'PreserveExternInFcnDecls', 'on');   % Preserve extern keyword in function declarations
-set_param(paraModel, 'PreserveIfCondition', 'on');   % Preserve condition expression in if statement
-set_param(paraModel, 'RTWCAPIParams', 'off');   % Generate C API for parameters
-set_param(paraModel, 'RTWCAPIRootIO', 'off');   % Generate C API for root-level I/O
-set_param(paraModel, 'RTWCAPISignals', 'off');   % Generate C API for signals
-set_param(paraModel, 'RTWCAPIStates', 'off');   % Generate C API for states
-set_param(paraModel, 'RateGroupingCode', 'on');   % RateGroupingCode
-set_param(paraModel, 'SignalDisplayLevel', 10);   % Signal display level
-set_param(paraModel, 'SuppressUnreachableDefaultCases', 'off');   % Suppress generation of default cases for Stateflow switch statements if unreachable
-set_param(paraModel, 'BooleanTrueId', 'true');   % Boolean true identifier
-set_param(paraModel, 'BooleanFalseId', 'false');   % Boolean false identifier
-set_param(paraModel, 'MaxIdInt32', 'MAX_int32_T');   % 32-bit integer maximum identifier
-set_param(paraModel, 'MinIdInt32', 'MIN_int32_T');   % 32-bit integer minimum identifier
-set_param(paraModel, 'MaxIdUint32', 'MAX_uint32_T');   % 32-bit unsigned integer maximum identifier
-set_param(paraModel, 'MaxIdInt16', 'MAX_int16_T');   % 16-bit integer maximum identifier
-set_param(paraModel, 'MinIdInt16', 'MIN_int16_T');   % 16-bit integer minimum identifier
-set_param(paraModel, 'MaxIdUint16', 'MAX_uint16_T');   % 16-bit unsigned integer maximum identifier
-set_param(paraModel, 'MaxIdInt8', 'MAX_int8_T');   % 8-bit integer maximum identifier
-set_param(paraModel, 'MinIdInt8', 'MIN_int8_T');   % 8-bit integer minimum identifier
-set_param(paraModel, 'MaxIdUint8', 'MAX_uint8_T');   % 8-bit unsigned integer maximum identifier
-set_param(paraModel, 'TypeLimitIdReplacementHeaderFile', '');   % Type limit identifier replacement header file
-set_param(paraModel, 'AutosarCompilerAbstraction', 'off');   % Use AUTOSAR compiler abstraction macros
-set_param(paraModel, 'AutosarMatrixIOAsArray', 'off');   % Support root-level matrix I/O using one-dimensional arrays
-set_param(paraModel, 'AutosarMaxShortNameLength', 64);   % Maximum SHORT-NAME length
-set_param(paraModel, 'AutosarSchemaVersion', '4.2');   % Generate XML file for schema version
-
-% Simulink Coverage
-set_param(paraModel, 'CovModelRefEnable', 'off');   % Record coverage for referenced models
-set_param(paraModel, 'RecordCoverage', 'off');   % Record coverage for this model
-set_param(paraModel, 'CovEnable', 'off');   % Enable coverage analysis
-set_param(paraModel, 'CovEnableCumulative', 'on');   % Enable cumulative data collection
-set_param(paraModel, 'CovSaveCumulativeToWorkspaceVar', 'on');   % Save cumulative coverage results in workspace variable
-set_param(paraModel, 'CovCumulativeVarName', 'covCumulativeData');   % Cumulative coverage variable name
-set_param(paraModel, 'CovSaveName', 'covdata');   % Last coverage run variable name
-set_param(paraModel, 'CovNameIncrementing', 'off');   % Increment cvdata variable name with each simulation
-set_param(paraModel, 'CovReportOnPause', 'on');   % Update coverage results on pause
-set_param(paraModel, 'CovHTMLOptions', '');   % Coverage report options
-set_param(paraModel, 'CovCumulativeReport', 'off');   % Include cumulative data in coverage report
-set_param(paraModel, 'CovCompData', '');   % Additional data to include in coverage report
-set_param(paraModel, 'CovFilter', '');   % Coverage filter filename
-set_param(paraModel, 'CovSaveOutputData', 'on');   % Save output data
-
-% HDL Coder
-hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
-
-Configurate = 'Autosar config successful, script version 0.8';
+        % calculate the data type config
+        switch data_type
+        case '_u8'
+            data_type_cfg = 'uint8';
+        case 'u16'
+            data_type_cfg = 'uint16';
+        case 'u32'
+            data_type_cfg = 'uint32';
+        case 'f32'
+            data_type_cfg = 'single';
+        case 'f64'
+            data_type_cfg = 'double';
+        case '_s8'
+            data_type_cfg = 'int8';
+        case 's16'
+            data_type_cfg = 'int16';
+        case 's32'
+            data_type_cfg = 'int32';
+        case '_bl'
+            data_type_cfg = 'boolean';
+        otherwise
+            data_type_cfg = 'uint8';
+        end
+        % add the parameter
+        try
+        temp_defined = Simulink.Signal;
+        temp_defined.DataType =  data_type_cfg;
+        assignin('base',name_defined,temp_defined);
+        catch
+            % do nothing
+        end
+    end
+    % report configurate results
+    add_parameter_result = 'Add signal parameters successful';
+else
+    % report configurate results
+    add_parameter_result = 'No signal line have names';
+end
