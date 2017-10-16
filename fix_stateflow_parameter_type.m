@@ -1,15 +1,15 @@
 %------------------------------------------------------------------------------
 %   Simulink scrip for retype stateflow patameters 
-%   MATLAB version: R2016a
+%   MATLAB version: R2017a
 %   Author: Shibo Jiang 
 %   Version: 0.1
 %   Instructions: 
 %------------------------------------------------------------------------------
-%   ÓÃÓÚstateflowÖĞ±äÁ¿Êı¾İÀàĞÍµÄÖØ¶¨Òå
-%   MATLAB °æ±¾: R2016a
-%   ×÷Õß: ½ªÊÀ²© 
-%   °æ±¾:    0.1
-%   ËµÃ÷: 
+%   ç”¨äºstateflowä¸­å˜é‡æ•°æ®ç±»å‹çš„é‡å®šä¹‰
+%   MATLAB ç‰ˆæœ¬: R2017a
+%   ä½œè€…: å§œä¸–åš 
+%   ç‰ˆæœ¬:    0.1
+%   è¯´æ˜: 
 %------------------------------------------------------------------------------
 
 function fix_result = fix_stateflow_parameter_type()
@@ -17,15 +17,15 @@ function fix_result = fix_stateflow_parameter_type()
 paraModel = bdroot;
 
 % Original matalb version is R2017a
-% ¼ì²éMatlab°æ±¾ÊÇ·ñÎªR2017a
+% æ£€æŸ¥Matlabç‰ˆæœ¬æ˜¯å¦ä¸ºR2017a
 CorrectVersion = '9.2.0.556344 (R2017a)';
 CurrentVersion = version;
 if 1 ~= strcmp(CorrectVersion,CurrentVersion);
-   warning('Matlab version mismatch, this scrip should be used for Matlab R2016a'); 
+   warning('Matlab version mismatch, this scrip should be used for Matlab R2017a'); 
 end
 
 % Original environment character encoding: GBK
-% ½Å±¾±àÂë»·¾³ÊÇ·ñÎªGBK
+% è„šæœ¬ç¼–ç ç¯å¢ƒæ˜¯å¦ä¸ºGBK
 if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
     warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',...
            get_param(0, 'CharacterEncoding'), 'GBK');
