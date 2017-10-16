@@ -1,12 +1,12 @@
 %------------------------------------------------------------------------------
 %   Simulink scrip for rename the blocks' name to signals' name
-%   MATLAB version: R2016a
+%   MATLAB version: R2017a
 %   Author: Shibo Jiang 
 %   Version: 0.1
 %   Instructions: 
 %------------------------------------------------------------------------------
 %   用于重命名模块上 inport端口名称为信号名称的脚本
-%   MATLAB 版本: R2016a
+%   MATLAB 版本: R2017a
 %   作者: 姜世博 
 %   版本:    0.1
 %   说明: 
@@ -16,12 +16,12 @@ function rename_ports_result = rename_port_to_sig()
 
 paraModel = bdroot;
 
-% Original matalb version is R2016a
-% 检查Matlab版本是否为R2016a
-CorrectVersion = '9.0.0.341360 (R2016a)';
+% Original matalb version is R2017a
+% 检查Matlab版本是否为R202017a
+CorrectVersion = '9.2.0.556344 (R2017a)';
 CurrentVersion = version;
 if 1 ~= strcmp(CorrectVersion,CurrentVersion);
-   %warning('Matlab version mismatch, this scrip should be used for Matlab R2016a'); 
+   warning('Matlab version mismatch, this scrip should be used for Matlab R2017a'); 
 end
 
 % Original environment character encoding: GBK
