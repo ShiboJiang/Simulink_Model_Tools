@@ -8,5 +8,6 @@
 
 # ignore these floder
 package
-toto_liunx
 toto_resources
+toto_gui_linux
+toto_gui_windows

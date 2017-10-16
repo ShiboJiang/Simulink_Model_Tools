@@ -20,18 +20,20 @@ function default_ports_result = default_port_property()
 
     % Original matalb version is R2017a
     % 检查Matlab版本是否为R2017a
-    CorrectVersion = '9.2.0.556344 (R2017a)';
+    CorrectVersion_win = '9.2.0.556344 (R2017a)';    % windows
+    CorrectVersion_linux =  '9.2.0.538062 (R2017a)';   % linux
     CurrentVersion = version;
-    if 1 ~= strcmp(CorrectVersion,CurrentVersion)
-        warning('Matlab version mismatch, this scrip should be used for Matlab R2017a'); 
+    if 1 ~= bitor(strcmp(CorrectVersion_win, CurrentVersion),...
+                strcmp(CorrectVersion_linux, CurrentVersion))
+    warning('Matlab version mismatch, this scrip should be used for Matlab R2017a'); 
     end
 
     % Original environment character encoding: GBK
     % 脚本编码环境是否为GBK
-    if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
-        warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',...
-            get_param(0, 'CharacterEncoding'), 'GBK');
-    end
+    % if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
+    %     warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',...
+    %         get_param(0, 'CharacterEncoding'), 'GBK');
+    % end
 
     DefaultPortProperty(paraModel, 'Inport')
     DefaultPortProperty(paraModel, 'Outport')

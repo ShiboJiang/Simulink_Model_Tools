@@ -22,7 +22,7 @@ function varargout = toto(varargin)
 
 % Edit the above text to modify the response to help toto
 
-% Last Modified by GUIDE v2.5 03-Sep-2017 22:55:08
+% Last Modified by GUIDE v2.5 16-Oct-2017 22:33:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,7 +78,7 @@ function add_sig_parameter_Callback(hObject, eventdata, handles)
 % hObject    handle to add_sig_parameter (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-add_sig_parameter_u8()
+add_sig_parameter()
 
 
 % --- Executes on button press in resolve_signals.
@@ -127,3 +127,82 @@ function creat_p_files_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 creat_p_files()
+
+
+% --------------------------------------------------------------------
+function Untitled_1_Callback(hObject, eventdata, handles)
+% hObject    handle to Untitled_1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in ERT.
+function ERT_Callback(hObject, eventdata, handles)
+% hObject    handle to ERT (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ERT_configuration()
+
+
+% --- Executes on button press in AUTOSAR.
+function AUTOSAR_Callback(hObject, eventdata, handles)
+% hObject    handle to AUTOSAR (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+Autosar_configuration()
+
+
+% --- Executes on button press in HideNameBlock.
+function HideNameBlock_Callback(hObject, eventdata, handles)
+% hObject    handle to HideNameBlock (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hide_name_blocks()
+
+
+% --- Executes on button press in ShowNameBlock.
+function ShowNameBlock_Callback(hObject, eventdata, handles)
+% hObject    handle to ShowNameBlock (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+show_name_blocks()
+
+
+% --- Executes on button press in HideNamePort.
+function HideNamePort_Callback(hObject, eventdata, handles)
+% hObject    handle to HideNamePort (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+hide_name_ports()
+
+
+% --- Executes on button press in ShowNamePort.
+function ShowNamePort_Callback(hObject, eventdata, handles)
+% hObject    handle to ShowNamePort (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+show_name_ports()
+
+
+% --- Executes on button press in FixSFParType.
+function FixSFParType_Callback(hObject, eventdata, handles)
+% hObject    handle to FixSFParType (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+fix_stateflow_parameter_type()
+
+
+% --- Executes on button press in ChangePortProperty.
+function ChangePortProperty_Callback(hObject, eventdata, handles)
+% hObject    handle to ChangePortProperty (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+change_port_property()
+
+
+% --- Executes on button press in DefaultPortProperty.
+function DefaultPortProperty_Callback(hObject, eventdata, handles)
+% hObject    handle to DefaultPortProperty (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+default_port_property()
