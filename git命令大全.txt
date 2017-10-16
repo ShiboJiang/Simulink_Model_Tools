@@ -64,5 +64,6 @@ tag就是一个让人容易记住的有意义的名字，它跟某个commit绑�
 推送某个标签到远程：				git push origin <tag-name>
 一次性推送全部尚未推送到远程的标签：git push origin --tags
 删除已经推送到远程的标签：			git tag -d v1.0 然后 git push origin :refs/tags/v1.0
+自定义git命令如下:       git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"              
 
 
