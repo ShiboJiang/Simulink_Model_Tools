@@ -1,12 +1,12 @@
 %------------------------------------------------------------------------------
 %   Simulink scrip for patameters adding as defined.
-%   MATLAB version: R2016a
+%   MATLAB version: R2017a
 %   Author: Shibo Jiang 
 %   Version: 0.2
 %   Instructions: 
 %------------------------------------------------------------------------------
 %   用于定义simulink变量的脚本，数据类型为变量名字后缀
-%   MATLAB 版本: R2016a
+%   MATLAB 版本: R2017a
 %   作者: 姜世博 
 %   版本:    0.2
 %   说明: 
@@ -16,12 +16,12 @@ function add_parameter_result = add_sig_parameter()
 
 paraModel = bdroot;
 
-% Original matalb version is R2016a
-% 检查Matlab版本是否为R2016a
+% Original matalb version is R2017a
+% 检查Matlab版本是否为R2017a
 CorrectVersion = '9.2.0.556344 (R2017a)';
 CurrentVersion = version;
 if 1 ~= strcmp(CorrectVersion,CurrentVersion);
-   warning('Matlab version mismatch, this scrip should be used for Matlab R2016a'); 
+   warning('Matlab version mismatch, this scrip should be used for Matlab R2017a'); 
 end
 
 % Original environment character encoding: GBK
