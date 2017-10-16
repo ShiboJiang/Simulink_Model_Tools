@@ -1,27 +1,27 @@
 %---------------------------------------------------------------------------
 %   Simulink scrip for ERT configuration set 
 %   MATLAB version: R2017a
-%   Please read the document <ª˘”⁄Autosar≈‰÷√Àµ√˜Œƒµµ v0.8> to learn details.
-%   Shibo Jiang    2017/9/8
-%   Version: 0.8
+%   Please read the document <Âü∫‰∫éAutosarÈÖçÁΩÆËØ¥ÊòéÊñáÊ°£ v0.9> to learn details.
+%   Shibo Jiang    2017/10/13
+%   Version: 0.9.4
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
-%     ≈‰ERT(«∂»Î Ωc¥˙¬Î)ƒø±Íµƒsimulinkƒ£–Õ≈‰÷√Ω≈±æ
-%   MATLAB ∞Ê±æ: R2017a
-%   æﬂÃÂ√øœÓƒ⁄»›ø…“‘≤Œøº°∂ª˘”⁄Autosar≈‰÷√Àµ√˜Œƒµµ v0.8°∑Œƒµµƒ⁄»›
-%   Ω™ ¿≤©         2017/9/8
-%   ∞Ê±æ:    0.8
-%   Àµ√˜: ‘⁄matlab√¸¡Ó¥∞∏Ò÷±Ω”‘À––¥ÀΩ≈±æ
-%         –Ë“™◊¢“‚÷¡…Ÿ¥Úø™“ª∏ˆƒ£–ÕΩ¯––≈‰÷√°£
+%   ÈÄÇÈÖçERT(ÂµåÂÖ•Âºèc‰ª£Á†Å)ÁõÆÊ†áÁöÑsimulinkÊ®°ÂûãÈÖçÁΩÆËÑöÊú¨
+%   MATLAB ÁâàÊú¨: R2017a
+%   ÂÖ∑‰ΩìÊØèÈ°πÂÜÖÂÆπÂèØ‰ª•ÂèÇËÄÉ„ÄäÂü∫‰∫éAutosarÈÖçÁΩÆËØ¥ÊòéÊñáÊ°£ v0.9„ÄãÊñáÊ°£ÂÜÖÂÆπ
+%   Âßú‰∏ñÂçö         2017/10/13
+%   ÁâàÊú¨:    0.9.4
+%   ËØ¥Êòé: Âú®matlabÂëΩ‰ª§Á™óÊ†ºÁõ¥Êé•ËøêË°åÊ≠§ËÑöÊú¨
+%         ÈúÄË¶ÅÊ≥®ÊÑèËá≥Â∞ëÊâìÂºÄ‰∏Ä‰∏™Ê®°ÂûãËøõË°åÈÖçÁΩÆ„ÄÇ
 %---------------------------------------------------------------------------
 
 function Configurate = ERT_configuration()
 
 paraModel = bdroot;
 
-% Original matalb version is R2016a
-% ºÏ≤ÈMatlab∞Ê±æ «∑ÒŒ™R2016a
+% Original matalb version is R2017a
+% Ê£ÄÊü•MatlabÁâàÊú¨ÊòØÂê¶‰∏∫R2017a
 CorrectVersion = '9.2.0.556344 (R2017a)';
 CurrentVersion = version;
 if 1 ~= strcmp(CorrectVersion,CurrentVersion);
@@ -29,13 +29,13 @@ if 1 ~= strcmp(CorrectVersion,CurrentVersion);
 end
 
 % Original environment character encoding: GBK
-% Ω≈±æ±‡¬Îª∑æ≥ «∑ÒŒ™GBK
+% ËÑöÊú¨ÁºñÁ†ÅÁéØÂ¢ÉÊòØÂê¶‰∏∫GBK
 if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
     warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',  get_param(0, 'CharacterEncoding'), 'GBK');
 end
 
 % Original configuration set target is autosar.tlc
-% Ω´¥˙¬Î…˙≥…ƒø±Íƒ£∞Â…Ë÷√Œ™ autosar.tlc
+% Â∞Ü‰ª£Á†ÅÁîüÊàêÁõÆÊ†áÊ®°ÊùøËÆæÁΩÆ‰∏∫ autosar.tlc
 myConfigObj=getActiveConfigSet(paraModel);
 try
     switchTarget(myConfigObj, 'ert.tlc', '');
@@ -43,14 +43,23 @@ catch ME
     % Do nothing
 end
 
+% Set [Display > Signals & Ports > Wide Nonscalar Lines] as on
+set_param(paraModel, 'WideLines', 'on')
+% Set [Display > Signals & Ports > Viewer Indicator] as on
+set_param(paraModel, 'ShowViewerIcons', 'on')
+% Set [Display > Signals & Ports > Test point & Logging Indicator] as on
+set_param(paraModel, 'ShowTestPointIcons', 'on')
+% Set [Display > Signals & Ports > Linearization Indicators] as on
+set_param(paraModel, 'ShowLinearizationAnnotations', 'on')
+
 % Do not change the order of the following commands. There are dependencies between the parameters.
-% ≤ª“™–ﬁ∏ƒ»Áœ¬√¸¡Ó––µƒÀ≥–Ú£¨œ‡ª•÷Æº‰”–“¿¿µπÿœµ
+% ‰∏çË¶Å‰øÆÊîπÂ¶Ç‰∏ãÂëΩ‰ª§Ë°åÁöÑÈ°∫Â∫èÔºåÁõ∏‰∫í‰πãÈó¥Êúâ‰æùËµñÂÖ≥Á≥ª
 
 set_param(paraModel, 'HardwareBoard', 'None');   % Hardware board
 
 % Solver
 set_param(paraModel, 'StartTime', '0.0');   % Start time
-set_param(paraModel, 'StopTime', 'inf');   % Stop time
+set_param(paraModel, 'StopTime', '10');   % Stop time
 set_param(paraModel, 'SolverType', 'Fixed-step');   % Type
 set_param(paraModel, 'EnableConcurrentExecution', 'off');   % Show concurrent execution options
 set_param(paraModel, 'SampleTimeConstraint', 'Unconstrained');   % Periodic sample time constraint
@@ -85,7 +94,7 @@ set_param(paraModel, 'BlockReduction', 'on');   % Block reduction
 set_param(paraModel, 'ConditionallyExecuteInputs', 'on');   % Conditional input branch execution
 set_param(paraModel, 'BooleanDataType', 'on');   % Implement logic signals as Boolean data (vs. double)
 set_param(paraModel, 'LifeSpan', 'inf');   % Application lifespan (days)
-set_param(paraModel, 'UseDivisionForNetSlopeComputation', 'off');   % Use division for fixed-point net slope computation
+set_param(paraModel, 'UseDivisionForNetSlopeComputation', 'on');   % Use division for fixed-point net slope computation
 set_param(paraModel, 'UseFloatMulNetSlope', 'off');   % Use floating-point multiplication to handle net slope corrections
 set_param(paraModel, 'DefaultUnderspecifiedDataType', 'single');   % Default for underspecified data type
 set_param(paraModel, 'UseSpecifiedMinMax', 'off');   % Optimize using the specified minimum and maximum values
@@ -129,75 +138,75 @@ set_param(paraModel, 'BlockPriorityViolationMsg', 'error');   % Block priority v
 set_param(paraModel, 'MinStepSizeMsg', 'warning');   % Min step size violation
 set_param(paraModel, 'TimeAdjustmentMsg', 'none');   % Sample hit time adjusting
 set_param(paraModel, 'MaxConsecutiveZCsMsg', 'error');   % Consecutive zero crossings violation
-set_param(paraModel, 'UnknownTsInhSupMsg', 'error');   % Unspecified inheritability of sample time
+set_param(paraModel, 'UnknownTsInhSupMsg', 'warning');   % Unspecified inheritability of sample time
 set_param(paraModel, 'ConsistencyChecking', 'none');   % Solver data inconsistency
 set_param(paraModel, 'SolverPrmCheckMsg', 'error');   % Automatic solver parameter selection
 set_param(paraModel, 'ModelReferenceExtraNoncontSigs', 'error');   % Extraneous discrete derivative signals
 set_param(paraModel, 'StateNameClashWarn', 'warning');   % State name clash
 set_param(paraModel, 'SimStateInterfaceChecksumMismatchMsg', 'warning');   % SimState interface checksum mismatch
 set_param(paraModel, 'SimStateOlderReleaseMsg', 'error');   % SimState object from earlier release
-set_param(paraModel, 'InheritedTsInSrcMsg', 'error');   % Source block specifies -1 sample time
+set_param(paraModel, 'InheritedTsInSrcMsg', 'warning');   % Source block specifies -1 sample time
 set_param(paraModel, 'MultiTaskRateTransMsg', 'error');   % Multitask rate transition
-set_param(paraModel, 'SingleTaskRateTransMsg', 'error');   % Single task rate transition
+set_param(paraModel, 'SingleTaskRateTransMsg', 'warning');   % Single task rate transition
 set_param(paraModel, 'MultiTaskCondExecSysMsg', 'error');   % Multitask conditionally executed subsystem
-set_param(paraModel, 'TasksWithSamePriorityMsg', 'error');   % Tasks with equal priority
-set_param(paraModel, 'SigSpecEnsureSampleTimeMsg', 'error');   % Enforce sample times specified by Signal Specification blocks
+set_param(paraModel, 'TasksWithSamePriorityMsg', 'warning');   % Tasks with equal priority
+set_param(paraModel, 'SigSpecEnsureSampleTimeMsg', 'warning');   % Enforce sample times specified by Signal Specification blocks
 set_param(paraModel, 'SignalResolutionControl', 'UseLocalSettings');   % Signal resolution
-set_param(paraModel, 'CheckMatrixSingularityMsg', 'error');   % Division by singular matrix
-set_param(paraModel, 'IntegerSaturationMsg', 'error');   % Saturate on overflow
-set_param(paraModel, 'UnderSpecifiedDataTypeMsg', 'error');   % Underspecified data types
+set_param(paraModel, 'CheckMatrixSingularityMsg', 'warning');   % Division by singular matrix
+set_param(paraModel, 'IntegerSaturationMsg', 'warning');   % Saturate on overflow
+set_param(paraModel, 'UnderSpecifiedDataTypeMsg', 'warning');   % Underspecified data types
 set_param(paraModel, 'SignalRangeChecking', 'error');   % Simulation range checking
 set_param(paraModel, 'IntegerOverflowMsg', 'error');   % Wrap on overflow
-set_param(paraModel, 'SignalInfNanChecking', 'error');   % Inf or NaN block output
-set_param(paraModel, 'RTPrefix', 'error');   % "rt" prefix for identifiers
-set_param(paraModel, 'ParameterDowncastMsg', 'error');   % Detect downcast
-set_param(paraModel, 'ParameterOverflowMsg', 'error');   % Detect overflow
-set_param(paraModel, 'ParameterUnderflowMsg', 'error');   % Detect underflow
-set_param(paraModel, 'ParameterPrecisionLossMsg', 'error');   % Detect precision loss
-set_param(paraModel, 'ParameterTunabilityLossMsg', 'error');   % Detect loss of tunability
-set_param(paraModel, 'ReadBeforeWriteMsg', 'EnableAllAsError');   % Detect read before write
-set_param(paraModel, 'WriteAfterReadMsg', 'EnableAllAsError');   % Detect write after read
-set_param(paraModel, 'WriteAfterWriteMsg', 'EnableAllAsError');   % Detect write after write
-set_param(paraModel, 'MultiTaskDSMMsg', 'error');   % Multitask data store
-set_param(paraModel, 'UniqueDataStoreMsg', 'error');   % Duplicate data store names
+set_param(paraModel, 'SignalInfNanChecking', 'warning');   % Inf or NaN block output
+set_param(paraModel, 'RTPrefix', 'warning');   % "rt" prefix for identifiers
+set_param(paraModel, 'ParameterDowncastMsg', 'warning');   % Detect downcast
+set_param(paraModel, 'ParameterOverflowMsg', 'warning');   % Detect overflow
+set_param(paraModel, 'ParameterUnderflowMsg', 'warning');   % Detect underflow
+set_param(paraModel, 'ParameterPrecisionLossMsg', 'warning');   % Detect precision loss
+set_param(paraModel, 'ParameterTunabilityLossMsg', 'warning');   % Detect loss of tunability
+set_param(paraModel, 'ReadBeforeWriteMsg', 'EnableAllAsWarning');   % Detect read before write
+set_param(paraModel, 'WriteAfterReadMsg', 'EnableAllAsWarning');   % Detect write after read
+set_param(paraModel, 'WriteAfterWriteMsg', 'EnableAllAsWarning');   % Detect write after write
+set_param(paraModel, 'MultiTaskDSMMsg', 'warning');   % Multitask data store
+set_param(paraModel, 'UniqueDataStoreMsg', 'warning');   % Duplicate data store names
 set_param(paraModel, 'UnderspecifiedInitializationDetection', 'Simplified');   % Underspecified initialization detection
 set_param(paraModel, 'ArrayBoundsChecking', 'none');   % Array bounds exceeded
 set_param(paraModel, 'AssertControl', 'DisableAll');   % Model Verification block enabling
 set_param(paraModel, 'AllowSymbolicDim', 'off');   % Allow symbolic dimension specification
 set_param(paraModel, 'UnnecessaryDatatypeConvMsg', 'warning');   % Unnecessary type conversions
-set_param(paraModel, 'VectorMatrixConversionMsg', 'error');   % Vector/matrix block input conversion
+set_param(paraModel, 'VectorMatrixConversionMsg', 'warning');   % Vector/matrix block input conversion
 set_param(paraModel, 'Int32ToFloatConvMsg', 'warning');   % 32-bit integer to single precision float conversion
-set_param(paraModel, 'FixptConstUnderflowMsg', 'none');   % Detect underflow
-set_param(paraModel, 'FixptConstOverflowMsg', 'none');   % Detect overflow
-set_param(paraModel, 'FixptConstPrecisionLossMsg', 'none');   % Detect precision loss
-set_param(paraModel, 'SignalLabelMismatchMsg', 'error');   % Signal label mismatch
-set_param(paraModel, 'UnconnectedInputMsg', 'error');   % Unconnected block input ports
-set_param(paraModel, 'UnconnectedOutputMsg', 'error');   % Unconnected block output ports
-set_param(paraModel, 'UnconnectedLineMsg', 'error');   % Unconnected line
-set_param(paraModel, 'RootOutportRequireBusObject', 'error');   % Unspecified bus object at root Outport block
-set_param(paraModel, 'BusObjectLabelMismatch', 'error');   % Element name mismatch
+set_param(paraModel, 'FixptConstUnderflowMsg', 'warning');   % Detect underflow
+set_param(paraModel, 'FixptConstOverflowMsg', 'warning');   % Detect overflow
+set_param(paraModel, 'FixptConstPrecisionLossMsg', 'warning');   % Detect precision loss
+set_param(paraModel, 'SignalLabelMismatchMsg', 'warning');   % Signal label mismatch
+set_param(paraModel, 'UnconnectedInputMsg', 'warning');   % Unconnected block input ports
+set_param(paraModel, 'UnconnectedOutputMsg', 'warning');   % Unconnected block output ports
+set_param(paraModel, 'UnconnectedLineMsg', 'warning');   % Unconnected line
+set_param(paraModel, 'RootOutportRequireBusObject', 'warning');   % Unspecified bus object at root Outport block
+set_param(paraModel, 'BusObjectLabelMismatch', 'warning');   % Element name mismatch
 set_param(paraModel, 'StrictBusMsg', 'ErrorOnBusTreatedAsVector');   % Bus signal treated as vector
-set_param(paraModel, 'NonBusSignalsTreatedAsBus', 'error');   % Non-bus signals treated as bus signals
+set_param(paraModel, 'NonBusSignalsTreatedAsBus', 'warning');   % Non-bus signals treated as bus signals
 set_param(paraModel, 'BusNameAdapt', 'WarnAndRepair');   % Repair bus selections
 set_param(paraModel, 'InvalidFcnCallConnMsg', 'error');   % Invalid function-call connection
 set_param(paraModel, 'FcnCallInpInsideContextMsg', 'error');   % Context-dependent inputs
-set_param(paraModel, 'SFcnCompatibilityMsg', 'error');   % S-function upgrades needed
+set_param(paraModel, 'SFcnCompatibilityMsg', 'warning');   % S-function upgrades needed
 set_param(paraModel, 'FrameProcessingCompatibilityMsg', 'error');   % Block behavior depends on frame status of signal
-set_param(paraModel, 'ModelReferenceVersionMismatchMessage', 'error');   % Model block version mismatch
-set_param(paraModel, 'ModelReferenceIOMismatchMessage', 'error');   % Port and parameter mismatch
-set_param(paraModel, 'ModelReferenceIOMsg', 'error');   % Invalid root Inport/Outport block connection
-set_param(paraModel, 'ModelReferenceDataLoggingMessage', 'error');   % Unsupported data logging
+set_param(paraModel, 'ModelReferenceVersionMismatchMessage', 'warning');   % Model block version mismatch
+set_param(paraModel, 'ModelReferenceIOMismatchMessage', 'warning');   % Port and parameter mismatch
+set_param(paraModel, 'ModelReferenceIOMsg', 'warning');   % Invalid root Inport/Outport block connection
+set_param(paraModel, 'ModelReferenceDataLoggingMessage', 'warning');   % Unsupported data logging
 set_param(paraModel, 'SaveWithDisabledLinksMsg', 'warning');   % Block diagram contains disabled library links
 set_param(paraModel, 'SaveWithParameterizedLinksMsg', 'warning');   % Block diagram contains parameterized library links
 set_param(paraModel, 'SFUnusedDataAndEventsDiag', 'warning');   % Unused data, events, messages and functions
 set_param(paraModel, 'SFUnexpectedBacktrackingDiag', 'error');   % Unexpected backtracking
-set_param(paraModel, 'SFInvalidInputDataAccessInChartInitDiag', 'error');   % Invalid input data access in chart initialization
+set_param(paraModel, 'SFInvalidInputDataAccessInChartInitDiag', 'warning');   % Invalid input data access in chart initialization
 set_param(paraModel, 'SFNoUnconditionalDefaultTransitionDiag', 'error');   % No unconditional default transitions
-set_param(paraModel, 'SFTransitionOutsideNaturalParentDiag', 'error');   % Transition outside natural parent
+set_param(paraModel, 'SFTransitionOutsideNaturalParentDiag', 'warning');   % Transition outside natural parent
 set_param(paraModel, 'SFUnreachableExecutionPathDiag', 'warning');   % Unreachable execution path
 set_param(paraModel, 'SFUndirectedBroadcastEventsDiag', 'warning');   % Undirected event broadcasts
 set_param(paraModel, 'SFTransitionActionBeforeConditionDiag', 'warning');   % Transition action specified before condition action
-set_param(paraModel, 'SFOutputUsedAsStateInMooreChartDiag', 'warning');   % Read-before-write to output in Moore chart
+set_param(paraModel, 'SFOutputUsedAsStateInMooreChartDiag', 'error');   % Read-before-write to output in Moore chart
 set_param(paraModel, 'SFTemporalDelaySmallerThanSampleTimeDiag', 'warning');   % Absolute time temporal value shorter than sampling period
 set_param(paraModel, 'SFSelfTransitionDiag', 'warning');   % Self-transition on leaf state
 set_param(paraModel, 'SFExecutionAtInitializationDiag', 'warning');   % 'Execute-at-initialization' disabled in presence of input events
@@ -262,7 +271,7 @@ set_param(paraModel, 'CompOptLevelCompliant', 'on');   % CompOptLevelCompliant
 set_param(paraModel, 'Toolchain', 'Automatically locate an installed toolchain');   % Toolchain
 set_param(paraModel, 'BuildConfiguration', 'Faster Builds');   % Build configuration
 set_param(paraModel, 'ObjectivePriorities', []);   % Prioritized objectives
-set_param(paraModel, 'CheckMdlBeforeBuild', 'Warning');   % Check model before generating code
+set_param(paraModel, 'CheckMdlBeforeBuild', 'off');   % Check model before generating code
 set_param(paraModel, 'SILDebugging', 'off');   % Enable source-level debugging for SIL
 set_param(paraModel, 'GenCodeOnly', 'on');   % Generate code only
 set_param(paraModel, 'PackageGeneratedCodeAndArtifacts', 'off');   % Package code and artifacts
@@ -371,7 +380,7 @@ set_param(paraModel, 'ERTCustomFileBanners', 'on');   % ERTCustomFileBanners
 set_param(paraModel, 'ERTFirstTimeCompliant', 'on');   % ERTFirstTimeCompliant
 set_param(paraModel, 'GenerateFullHeader', 'on');   % GenerateFullHeader
 set_param(paraModel, 'InferredTypesCompatibility', 'off');   % InferredTypesCompatibility
-set_param(paraModel, 'GenerateSharedConstants', 'on');   % Generate shared constants
+set_param(paraModel, 'GenerateSharedConstants', 'off');   % Generate shared constants
 set_param(paraModel, 'ModelReferenceCompliant', 'on');   % ModelReferenceCompliant
 set_param(paraModel, 'ModelStepFunctionPrototypeControlCompliant', 'on');   % ModelStepFunctionPrototypeControlCompliant
 set_param(paraModel, 'ParMdlRefBuildCompliant', 'on');   % ParMdlRefBuildCompliant
@@ -389,7 +398,7 @@ set_param(paraModel, 'ConvertIfToSwitch', 'on');   % Convert if-elseif-else patt
 set_param(paraModel, 'ERTCustomFileTemplate', 'example_file_process.tlc');   % File customization template
 set_param(paraModel, 'ERTDataHdrFileTemplate', 'ert_code_template.cgt');   % Header file template
 set_param(paraModel, 'ERTDataSrcFileTemplate', 'ert_code_template.cgt');   % Source file template
-set_param(paraModel, 'ERTFilePackagingFormat', 'Modular');   % File packaging format
+set_param(paraModel, 'ERTFilePackagingFormat', 'Compact');   % File packaging format
 set_param(paraModel, 'ERTHdrFileBannerTemplate', 'ert_code_template.cgt');   % Header file template
 set_param(paraModel, 'ERTSrcFileBannerTemplate', 'ert_code_template.cgt');   % Source file template
 set_param(paraModel, 'EnableDataOwnership', 'off');   % Use owner from data object for data definition placement
@@ -450,4 +459,4 @@ set_param(paraModel, 'CovSaveOutputData', 'on');   % Save output data
 % HDL Coder
 hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-Configurate = 'ERT config successful,script version 0.8';
+Configurate = 'ERT config successful,script version 0.9.4';
