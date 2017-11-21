@@ -2,19 +2,20 @@
 %   Simulink scrip for change ports property
 %   MATLAB version: R2017a
 %   Author: Shibo Jiang 
-%   Version: 0.4
+%   Version: 0.5
+%   Date: 2017/11/2
 %   Instructions: fix bugs
-%------------------------------------------------------------------------------
 %   用于修改inport和outport端口模块属性的脚本
 %   MATLAB 版本: R2017a
 %   作者: 姜世博 
-%   版本:    0.4
 %   说明: 修改bug，仅更改模型root层的输入和输出端口属性，不对子系统进行修改  - 0.2
 %         修改脚本，在遇到线上没有数据类型端口，不进行默认为uint8的类型改写，
 %         当线上没有数据类型时，检测端口是否已经定义数据类型，如定义则根据所
 %         定义的数据类型自动补全数据范围等其它属性                         - 0.3 
 %         修改bug，在检测到模型配置中采样时间设为连续时，将端口的采样时间设
-%         为 默认的 -1                                                  - 0.4                            
+%         为 默认的 -1                                                  - 0.4  
+%         修改bug，当设为不连续采样，但是采样时间设为auto时，将端口采样时间
+%         设为默认的 -1                                                  - 0.5                          
 %------------------------------------------------------------------------------
 
 function change_ports_result = change_port_property()
@@ -100,6 +101,10 @@ function ChangePortProperty(paraModel, block)
                     % get cfg
                     if strcmp('Fixed-step', get_param(paraModel, 'SolverType'))
                         sample_time = get_param(paraModel,'FixedStep');
+                        % Fix bug , step set Auto and use fixed-step mode
+                        if strcmp('auto', sample_time)
+                            sample_time = '-1';
+                        end
                     else
                         sample_time = '-1';
                     end
