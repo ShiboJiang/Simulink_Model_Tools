@@ -2,16 +2,16 @@
 %   Simulink scrip for ERT configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2017/10/13
-%   Version: 0.9.4
+%   Shibo Jiang    2017/11/2
+%   Version: 0.9.6
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
 %   适配ERT(嵌入式c代码)目标的simulink模型配置脚本
 %   MATLAB 版本: R2017a
 %   具体每项内容可以参考《基于Autosar配置说明文档 v0.9》文档内容
-%   姜世博         2017/10/13
-%   版本:    0.9.4
+%   姜世博         2017/11/2
+%   版本:    0.9.6
 %   说明: 在matlab命令窗格直接运行此脚本
 %         需要注意至少打开一个模型进行配置。
 %---------------------------------------------------------------------------
@@ -46,13 +46,23 @@ catch
 end
 
 % Set [Display > Signals & Ports > Wide Nonscalar Lines] as on
-set_param(paraModel, 'WideLines', 'on')
+set_param(paraModel, 'WideLines', 'on');
 % Set [Display > Signals & Ports > Viewer Indicator] as on
-set_param(paraModel, 'ShowViewerIcons', 'on')
+set_param(paraModel, 'ShowViewerIcons', 'on');
 % Set [Display > Signals & Ports > Test point & Logging Indicator] as on
-set_param(paraModel, 'ShowTestPointIcons', 'on')
+set_param(paraModel, 'ShowTestPointIcons', 'on');
 % Set [Display > Signals & Ports > Linearization Indicators] as on
-set_param(paraModel, 'ShowLinearizationAnnotations', 'on')
+set_param(paraModel, 'ShowLinearizationAnnotations', 'on');
+% Set [Display > Library Links] as none
+set_param(paraModel,'LibraryLinkDisplay', 'none');
+% Set font style as Arial
+set_param(paraModel,'DefaultAnnotationFontName', 'Arial');
+set_param(paraModel,'DefaultBlockFontName', 'Arial');
+set_param(paraModel,'DefaultLineFontName', 'Arial');
+
+set_param(paraModel,'DefaultAnnotationFontSize', '10');
+set_param(paraModel,'DefaultBlockFontSize', '10');
+set_param(paraModel,'DefaultLineFontSize', '10');
 
 % Do not change the order of the following commands. There are dependencies between the parameters.
 % 不要修改如下命令行的顺序，相互之间有依赖关系
@@ -155,9 +165,9 @@ set_param(paraModel, 'TasksWithSamePriorityMsg', 'warning');   % Tasks with equa
 set_param(paraModel, 'SigSpecEnsureSampleTimeMsg', 'warning');   % Enforce sample times specified by Signal Specification blocks
 set_param(paraModel, 'SignalResolutionControl', 'UseLocalSettings');   % Signal resolution
 set_param(paraModel, 'CheckMatrixSingularityMsg', 'warning');   % Division by singular matrix
-set_param(paraModel, 'IntegerSaturationMsg', 'warning');   % Saturate on overflow
+set_param(paraModel, 'IntegerSaturationMsg', 'error');   % Saturate on overflow
 set_param(paraModel, 'UnderSpecifiedDataTypeMsg', 'warning');   % Underspecified data types
-set_param(paraModel, 'SignalRangeChecking', 'error');   % Simulation range checking
+set_param(paraModel, 'SignalRangeChecking', 'warning');   % Simulation range checking
 set_param(paraModel, 'IntegerOverflowMsg', 'error');   % Wrap on overflow
 set_param(paraModel, 'SignalInfNanChecking', 'warning');   % Inf or NaN block output
 set_param(paraModel, 'RTPrefix', 'warning');   % "rt" prefix for identifiers
@@ -461,4 +471,4 @@ set_param(paraModel, 'CovSaveOutputData', 'on');   % Save output data
 % HDL Coder
 hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-Configurate = 'ERT config successful,script version 0.9.4';
+Configurate = 'ERT config successful,script version 0.9.6';
