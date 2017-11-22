@@ -49,6 +49,9 @@
 |0.9.2|将`Check model before generating code`改为off；将`Diagnostics`中，除了MISRA-C，ISO26262，MAAB规则要求的检查项外，其它诊断从error改为warning    |2017/9/27 |姜世博 |
 |0.9.3|将`Diagnostics`中，除了MISRA-C，ISO26262，MAAB规则要求的检查项外，其它诊断从warning 设为默认选项，具体修改为`4.1.2 Multitask rate transition`设为error，`4.1.4 Multitask conditionally executed subsystem`设为error，`4.1.7 Sample hit time adjusting`设为none，`4.4.10 Invalid function-call connection`设为error，`4.4.11 Context-dependent inputs`设为error，`4.5.2 Block behavior depends on frame status of signal`设为error，`4.5.3 SimState object from earlier release`设为error，`4.7.2 Unexpected backtracking`设为error，`4.7.4 No unconditional default transitions`设为error，`4.7.8 Read-before-write to output in Moore chart`设为error|2017/10/10 |姜世博 |
 |0.9.4|将`4.4.7 Bus signal treated as vector`诊断设为`error`，将菜单栏`Display > Signals & Ports >`其中`Wide Nonscalar Lines`、`Viewer Indicator`、`Test point & Logging Indicator`、`Linearization Indicators` 这四项进行勾选显示 |2017/10/13|姜世博
+|0.9.5|将`4.2.4 Saturate on overflow`设为`error`; 将菜单栏`Display > Library Links`选项设为`none`; 增加模型默认字体配置，字体设为`Arial`，字号设为`10`|2017/10/25|姜世博|
+|0.9.6|arxml文件导入后各Runnable可能设为不同采样时间，为满足此类要求，将`1.3 Fixed-step size`设为`auto`; 将`4.2.7 Simulation range checking`设为`warning`; | 2017/11/2 | 姜世博|
+
 
 # 1. Solver 求解器的设定
 
