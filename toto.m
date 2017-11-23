@@ -22,7 +22,7 @@ function varargout = toto(varargin)
 
 % Edit the above text to modify the response to help toto
 
-% Last Modified by GUIDE v2.5 16-Oct-2017 22:33:16
+% Last Modified by GUIDE v2.5 23-Nov-2017 23:18:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -206,3 +206,26 @@ function DefaultPortProperty_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 default_port_property()
+
+
+% --- Executes on button press in sf_par_type_auto.
+function sf_par_type_auto_Callback(hObject, eventdata, handles)
+% hObject    handle to sf_par_type_auto (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+auto_sf_par_type()
+
+
+% --- Executes on button press in list_parameter.
+function list_parameter_Callback(hObject, eventdata, handles)
+% hObject    handle to list_parameter (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+out = list_parameter()
+
+% --- Executes on button press in change_parameter.
+function change_parameter_Callback(hObject, eventdata, handles)
+% hObject    handle to change_parameter (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+out = change_parameter()
