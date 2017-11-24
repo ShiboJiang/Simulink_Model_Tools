@@ -47,17 +47,17 @@
 
 1. 按照下图指示进行安装
 
-![001.jpg](001.jpg)
+![输入图片说明](https://gitee.com/uploads/images/2017/1124/222801_02612f42_1424277.png "深度截图_选择区域_20171124222641.png")
 
 2. 安装完成后出现如下图标，点开即可使用
 
-![002.jpg](002.jpg)
+![输入图片说明](https://gitee.com/uploads/images/2017/1124/222828_3c7d4b6a_1424277.png "深度截图_选择区域_20171124222737.png")
 
 ## 2. 使用说明
 
 toto工具需要在**打开模型**时才能作为辅助工具进行使用，下图为工具界面概览
 
-![003.jpg](003.jpg)
+![输入图片说明](https://gitee.com/uploads/images/2017/1124/222919_c6a6648e_1424277.png "深度截图_选择区域_20171124222856.png")
 
 ### 2.1 ERT
 
@@ -94,11 +94,11 @@ MinMax,UnitDelay,Sqrt,Merge,Product,Logic,RelationalOperator,Switch,MultiPortSwi
 
 1. 原模型
 
-![2_7_001.jpg](2_7_001.jpg)
+![输入图片说明](https://gitee.com/uploads/images/2017/1124/223331_0d412512_1424277.png "深度截图_选择区域_20171124223313.png")
 
 2. 点击添加信号线变量后
 
-![2_7_002.jpg](2_7_002.jpg)
+![输入图片说明](https://gitee.com/uploads/images/2017/1124/223442_14c69f68_1424277.png "深度截图_选择区域_20171124223426.png")
 
 ### 2.9 勾选resolve
 
