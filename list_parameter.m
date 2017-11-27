@@ -2,10 +2,13 @@
 %   Simulink scrip for listing dictionary parameters
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.5
-%   Time         : 2017/11/23
+%   Version      : 0.7
+%   Time         : 2017/11/27
 %   Instructions : Fix bugs ,modify temp name as '____'   - 0.4
 %                  Add datasource information             - 0.5
+%                  Fix bugs, messeage can report clearly  - 0.6
+%                  Code refactoring.
+%                  Adapt to MyPkg class searching         - 0.7
 %------------------------------------------------------------------------------
 function output = list_parameter()
 
@@ -47,12 +50,14 @@ function output = list_parameter()
     % Get line's name which is not defined in dictionary
     all_line = find_system(paraModel,'FindAll','on','type','line');
     j = 1;
+    APPEND_LENGTH = 3;
     for i = 1:length(all_line)
         current_line_name = get(all_line(i), 'Name');
         try
-            if strcmp('____', current_line_name(end-3:end))
+            if strcmp('____', current_line_name(APPEND_LENGTH-3:end))
                 % Revert the line's name
-                set_param(all_line(i), 'Name', current_line_name(1:(end-4)));
+                set_param(all_line(i), 'Name', ...
+                          current_line_name(1:(APPEND_LENGTH-1)));
             else
                 only_line_name{j} = current_line_name;
                 j = j + 1;
@@ -61,10 +66,18 @@ function output = list_parameter()
     end
 
     % Find and mark the simulink parameter & table
-    simulink_par = find(dic_entry,'-value','-class','Simulink.Parameter');
+    simu_par = find(dic_entry,'-value','-class','Simulink.Parameter');
+    mypkg_par = find(dic_entry,'-value','-class','MyPkg.Parameter');
+    simulink_par = [simu_par; mypkg_par];
     len_simu_par = length(simulink_par);
     index_table = 1;
     index_par = 1;
+    % Macro define which used in table
+    TABLE_NAME = 1;
+    TABLE_SOURCE = 2;
+    TABLE_DATATYPE = 3;
+    TABLE_DIM = 4;
+    TABLE_VALUE = 5;
     if 0 < len_simu_par
         for i = 1:len_simu_par
             simu_par_temp = getValue(simulink_par(i));
@@ -90,7 +103,7 @@ function output = list_parameter()
         end
     end
 
-    report_message = 'Listing is running.';
+    output = 'Listing is running.'
 
     % Define table name
     filename = [paraModel,'_list.xlsx'];
@@ -115,7 +128,7 @@ function output = list_parameter()
         xlswrite(filename, par_name, 'dict', 'C2');
         xlswrite(filename, par_name_source', 'dict', 'D2');
     else
-        report_message = {report_message, 'This model has no dictionary.'};
+        output = 'This model has no dictionary.'
     end
 
     % Write only line's name to excel
@@ -126,8 +139,8 @@ function output = list_parameter()
         xlswrite(filename, only_line_name, 'only_line', 'B2');
         xlswrite(filename, only_line_name, 'only_line', 'C2');
     else
-        report_message = {report_message, ['This model has no ',...
-                          'line name which only defined on line.']};
+        output = ['This model has no ',...
+                          'line name which only defined on line.']
     end
 
     % Write simulink parameters to excel
@@ -156,26 +169,25 @@ function output = list_parameter()
             % Start writing
             xlswrite(filename, i, 'simu_table', ...
                      table_num_position);
-            xlswrite(filename, simu_table{i}(1), 'simu_table', ...
-                     table_name_position);
-            xlswrite(filename, simu_table{i}(2), 'simu_table', ...
-                     table_source_position);
-            xlswrite(filename, simu_table{i}(3), 'simu_table', ...
-                     table_datatype_position);
-            xlswrite(filename, simu_table{i}{4}, 'simu_table', ...
-                     table_dim_position);
+            xlswrite(filename, simu_table{i}(TABLE_NAME),...
+                     'simu_table', table_name_position);
+            xlswrite(filename, simu_table{i}(TABLE_SOURCE),...
+                     'simu_table', table_source_position);
+            xlswrite(filename, simu_table{i}(TABLE_DATATYPE),...
+                     'simu_table', table_datatype_position);
+            xlswrite(filename, simu_table{i}{TABLE_DIM},...
+                     'simu_table', table_dim_position);
             try
-                xlswrite(filename, simu_table{i}{5}, 'simu_table', ...
-                     table_value_position);
+                xlswrite(filename, simu_table{i}{TABLE_VALUE},...
+                         'simu_table',  table_value_position);
             end
                     
-            temp_dim = temp_dim + simu_table{i}{4}(1);
+            temp_dim = temp_dim + simu_table{i}{TABLE_DIM}(1);
         end
     end
 
     % close the dictionary 
     close(current_dic);
-    report_message = {report_message, 'Listing name successful.'};
-    output = report_message;
+    output = 'Listing name successful.';
     
 end
