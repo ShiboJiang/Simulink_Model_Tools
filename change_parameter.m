@@ -2,10 +2,12 @@
 %   Simulink scrip for rename parameters and change parameter's value
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.3
-%   Time         : 2017/11/23
+%   Version      : 0.4
+%   Time         : 2017/11/27
 %   Instructions : Add change stateflow parameter function.
 %                  Add creat new parameter function.             - 0.3
+%                  Fix bugs ,message can report clearly          - 0.4
+%                  Code refactoring                              - 0.5
 % 
 %------------------------------------------------------------------------------
 function output = change_parameter()
@@ -39,6 +41,8 @@ function output = change_parameter()
         % Import excel file's data
     [number_par, name_par] = xlsread(filename, 'dict');
     [number_line, name_line] = xlsread(filename, 'only_line');
+    NAME_START_ROW = 2;
+    STR_COLUMN_END = 3;
 
     % Jduge only_line & dict sheet is empty?
     if isempty(number_par)
@@ -55,47 +59,51 @@ function output = change_parameter()
 
     switch (temp_judge_line + temp_judge_par)
     case 0
-        name_all = [name_par(2:end,1:3); name_line(2:end,1:3)];
+        name_all = [name_par(NAME_START_ROW:end,1:STR_COLUMN_END);...
+                    name_line(NAME_START_ROW:end,1:STR_COLUMN_END)];
         number_all = number_par(end,1) + number_line(end,1);
     case 1
-        name_all = name_par(2:end,1:3);
+        name_all = name_par(NAME_START_ROW:end,1:STR_COLUMN_END);
         number_all = number_par(end,1);
     case 2
-        name_all = name_line(2:end,1:3);
+        name_all = name_line(NAME_START_ROW:end,1:STR_COLUMN_END);
         number_all = number_line(end,1);
     case 3
         name_all = [];
     end
-    return_message = 'No parameter name changed.';
+    
     % Whether writing paramter's name
+    OLD_NAME_COL = 2;
+    NEW_NAME_COL = 3;
     if ~isempty(name_all)
         i_diff_name = 1;
         for i = 1:number_all(end)
-            temp_old = name_all{i, 2};
-            temp_new = name_all{i, 3};
+            temp_old = name_all{i, OLD_NAME_COL};
+            temp_new = name_all{i, NEW_NAME_COL};
             if ~strcmp(temp_new, temp_old)
                 % Find the parameter name in dict
                 par_dict = find(dic_entry, 'Name', temp_old);
                 % Find the parameter name in signal line
-                par_signal = find_system(paraModel,'FindAll','on','type','line'...
-                                        ,'Name',temp_old);
+                par_signal = find_system(paraModel,'FindAll','on',...
+                                     'type','line', 'Name',temp_old);
                 % Find the parameter name in constant block
-                par_const = find_system(paraModel,'FindAll','on','BlockType'...
-                                        ,'Constant','Value', temp_old);
+                par_const = find_system(paraModel,'FindAll','on',...
+                          'BlockType', 'Constant','Value', temp_old);
                 % Find the parameter name in table block
-                par_nd_table = find_system(paraModel,'FindAll','on','BlockType'...
-                                        ,'Lookup_n-D','Table', temp_old);
-                par_direct_table = find_system(paraModel,'FindAll','on',...
-                                            'BlockType','LookupNDDirect',...
-                                            'Table', temp_old);
+                par_nd_table = find_system(paraModel,'FindAll','on',...
+                          'BlockType', 'Lookup_n-D','Table', temp_old);
+                par_direct_table = find_system(paraModel,'FindAll',...
+                                 'on','BlockType','LookupNDDirect',...
+                                                   'Table', temp_old);
                 % Find the parameter name in port block
-                par_inport = find_system(paraModel,'FindAll','on','BlockType'...
-                                        ,'Inport','Name', temp_old);
-                par_outport = find_system(paraModel,'FindAll','on','BlockType'...
-                                        ,'Outport','Name', temp_old);
+                par_inport = find_system(paraModel,'FindAll','on',...
+                             'BlockType', 'Inport','Name', temp_old);
+                par_outport = find_system(paraModel,'FindAll','on',...
+                             'BlockType', 'Outport','Name', temp_old);
                 % Find the parameter name in stateflow
                 sf = sfroot;
-                par_sf_data = sf.find('-isa','Stateflow.Data','Name', temp_old);
+                par_sf_data = sf.find('-isa','Stateflow.Data',...
+                                               'Name', temp_old);
 
                 % Set new name
                 try
@@ -109,8 +117,6 @@ function output = change_parameter()
                 SetNewName(par_direct_table, 'Table', temp_new);
                 SetNewName(par_sf_data, 'Name', temp_new);
 
-                return_message = 'Rename parameter successful.';
-
                 % Store diff name for changing value
                 old_name{i_diff_name} = temp_old;
                 new_name{i_diff_name} = temp_new;
@@ -119,15 +125,21 @@ function output = change_parameter()
                 % Do nothing
             end
         end
+        output = 'Rename parameter successful.'
+    else
+        output = 'No parameter name changed.'
     end
 
     % Find simulink parameter in list and change the datatype&value
     [num_simu_par, str_simu_par] = xlsread(filename, 'simu_parameter');
+    SIMU_PAR_NAME_COL = 2;
+    SIMU_PAR_DATATYPE_COL = 4;
+    SIMU_PAR_VALUE = 5;
     if ~isempty(num_simu_par)
         for i = 1:num_simu_par(end,1)
-            temp_simu_par_name = str_simu_par(i+1, 2);
-            temp_simu_par_datatype = str_simu_par(i+1, 4);
-            temp_simu_par_value = num_simu_par(i, 5);
+            temp_simu_par_name = str_simu_par(i+1, SIMU_PAR_NAME_COL);
+            temp_simu_par_datatype = str_simu_par(i+1, SIMU_PAR_DATATYPE_COL);
+            temp_simu_par_value = num_simu_par(i, SIMU_PAR_VALUE);
             % Set new property
             temp_return = SetDictParameter(dic_entry,...
                                         temp_simu_par_name{1},...
@@ -157,17 +169,22 @@ function output = change_parameter()
                                 temp_simu_par_name{1},...
                                 temp_simu_par_datatype{1},...
                                 temp_simu_par_value);
-                return_message = {return_message, ['The parameter "' ,...
-                                                temp_simu_par_name{1},...
-                            '" does not exit, have already created it.']};
+                output = ['The parameter "' ,...
+                          temp_simu_par_name{1},...
+                        '" does not exit, have already created it.']
             end
         end
-        return_message = {return_message,...
-                         'Change simulink parameter successful.'};
+        output = 'Change simulink parameter successful.'
+    else
+        output = 'No simulink parameter need changed.'
     end
 
     % Find table in list and change the datatype&value
     [num_simu_table, str_simu_table] = xlsread(filename, 'simu_table');
+    TABLE_NAME_COL = 2;
+    TABLE_DATATYPE_COL = 4;
+    TABLE_ROW_SPACE_COL = 5;
+    TABLE_COL_SPACE_COL = 6;
     % Judge whether need writing talbe data
     if ~isempty(num_simu_table)
         len_simu_table_temp = length(num_simu_table(:,1));
@@ -181,10 +198,10 @@ function output = change_parameter()
         % Read tabel data and write to dict
         temp_row = 1;
         for i = 1: cycle_time_tale
-            temp_table_name = str_simu_table(1+temp_row, 2);
-            temp_table_datatype = str_simu_table(1+temp_row, 4);
-            temp_row_spacing = num_simu_table(temp_row, 5);
-            temp_column_spacing = num_simu_table(temp_row, 6);
+            temp_table_name = str_simu_table(1+temp_row, TABLE_NAME_COL);
+            temp_table_datatype = str_simu_table(1+temp_row, TABLE_DATATYPE_COL);
+            temp_row_spacing = num_simu_table(temp_row, TABLE_ROW_SPACE_COL);
+            temp_column_spacing = num_simu_table(temp_row, TABLE_COL_SPACE_COL);
             temp_table_data = num_simu_table(temp_row:...
                                 (temp_row + temp_row_spacing - 1),...
                                 7:(7 + temp_column_spacing - 1));
@@ -218,13 +235,15 @@ function output = change_parameter()
                                 temp_table_name{1},...
                                 temp_table_datatype{1},...
                                 temp_table_data);
-                return_message = {return_message, ['The parameter "' ,...
-                                                temp_table_name{1},...
-                            '" does not exit, have already created it.']};
+                output = ['The parameter "' ,...
+                          temp_table_name{1},...
+                          '" does not exit, have already created it.']
             end
             temp_row = temp_row + temp_row_spacing;
         end
-        return_message = {return_message, 'Change table data successful.'};
+        output = 'Change table data successful.'
+    else
+        output = 'No table data changed.'
     end
 
     % Save changes to the dictionary and close it.
@@ -232,7 +251,7 @@ function output = change_parameter()
     close(current_dic);
 
     % Report
-    output = return_message;
+    output = output;
 end
 %-----------------End of function----------------------------------------------
 
