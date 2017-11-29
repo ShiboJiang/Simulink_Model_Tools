@@ -1,16 +1,11 @@
 %------------------------------------------------------------------------------
 %   Matlab scrip for p file created.
 %   MATLAB version: R2017a
-%   Shibo Jiang    2017/8/28
-%   Version: 0.1
-%   Instructions: Use this scrip and the **.m files which need translating to
-%   **.p files in the same folder.
-%------------------------------------------------------------------------------
-%   用来生成p文件的matlab脚本文件
-%   MATLAB 版本: R2017a
-%   姜世博         2017/8/28
-%   版本:    0.1
-%   说明: 将本脚本和需要转换成p文件的m脚本放到同一个目录下
+%   Author        : Shibo Jiang   
+%   Time          : 2017/8/28
+%   Version       : 0.1
+%   Instructions  : Use this scrip and the *.m files which need translating 
+%                   to *.p files in the same folder.
 %------------------------------------------------------------------------------
 
 %-----Start of creat_p_files---------------------------------------------------
