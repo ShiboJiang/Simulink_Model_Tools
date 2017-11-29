@@ -1,15 +1,9 @@
 %------------------------------------------------------------------------------
 %   Simulink scrip for rename the blocks' name to signals' name
 %   MATLAB version: R2017a
-%   Author: Shibo Jiang 
-%   Version: 0.1
-%   Instructions: 
-%------------------------------------------------------------------------------
-%   用于重命名模块上 信号线 上的名字，修改为所连接的端口的名字
-%   MATLAB 版本: R2017a
-%   作者: 姜世博 
-%   版本:    0.1
-%   说明: 
+%   Author        : Shibo Jiang 
+%   Version       : 0.1
+%   Instructions  : 
 %------------------------------------------------------------------------------
 
 function rename_sig_result = rename_sig_to_port()
