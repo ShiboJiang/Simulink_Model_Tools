@@ -1,14 +1,11 @@
 %------------------------------------------------------------------------------
 %   Simulink scrip for change ports property
 %   MATLAB version: R2017a
-%   Author: Shibo Jiang 
-%   Version: 0.5
-%   Date: 2017/11/2
-%   Instructions: fix bugs
-%   用于修改inport和outport端口模块属性的脚本
-%   MATLAB 版本: R2017a
-%   作者: 姜世博 
-%   说明: 修改bug，仅更改模型root层的输入和输出端口属性，不对子系统进行修改  - 0.2
+%   Author        : Shibo Jiang 
+%   Version       : 0.5
+%   Time          : 2017/11/2
+%   Instructions  : fix bugs
+%         修改bug，仅更改模型root层的输入和输出端口属性，不对子系统进行修改  - 0.2
 %         修改脚本，在遇到线上没有数据类型端口，不进行默认为uint8的类型改写，
 %         当线上没有数据类型时，检测端口是否已经定义数据类型，如定义则根据所
 %         定义的数据类型自动补全数据范围等其它属性                         - 0.3 
@@ -35,7 +32,8 @@ function change_ports_result = change_port_property()
     % Original environment character encoding: GBK
     % 脚本编码环境是否为GBK
     % if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
-    %     warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',...
+    %     warning('Simulink:EncodingUnMatched', 'The target character...
+    %  encoding (%s) is different from the original (%s).',...
     %         get_param(0, 'CharacterEncoding'), 'GBK');
     % end
 
@@ -49,7 +47,8 @@ end
 %-----------Start of function--------------------------------------------------
 function ChangePortProperty(paraModel, block)
     % find all block
-    inport_block = find_system(paraModel,'SearchDepth', '1','FindAll','on','BlockType',block);
+    inport_block = find_system(paraModel,'SearchDepth', '1','FindAll',...
+                               'on','BlockType',block);
     % Calculate get parameter
     length_inport = length(inport_block);
     if strcmp('Inport', block)
@@ -113,8 +112,8 @@ function ChangePortProperty(paraModel, block)
                     SetPortProperty(inport_block(i), set_min, set_max,...
                                     set_datatype, sample_time, port_dimension) 
                     % clear port signal resolved
-                    inport_signal_line = find_system(paraModel,'FindAll','on','type',...
-                                        'line','Name',current_out_sig_name);  
+                    inport_signal_line = find_system(paraModel,'FindAll',...
+                             'on','type','line','Name',current_out_sig_name);  
                     set(inport_signal_line,'MustResolveToSignalObject',0); 
                 else
                     % do nothing  
