@@ -1,17 +1,11 @@
 %------------------------------------------------------------------------------
 %   Simulink scrip for change ports property to default
 %   MATLAB version: R2017a
-%   Author: Shibo Jiang 
-%   Version: 0.3
-%   Instructions: fix bugs
-%------------------------------------------------------------------------------
-%   用于修改inport和outport端口模块属性为默认值的脚本
-%   MATLAB 版本: R2017a
-%   作者: 姜世博 
-%   版本:    0.3
-%   说明: 修改bug，仅对模型root层输入输出端口进行修改             - 0.2
-%         策略修改，仅还原能够使用信号线上后缀名字定义的数据
-%         类型的端口                                           - 0.3
+%   Author        : Shibo Jiang 
+%   Version       : 0.3
+%   Instructions  : 修改bug，仅对模型root层输入输出端口进行修改           - 0.2
+%                   策略修改，仅还原能够使用信号线上后缀名字定义的数据
+%                   类型的端口                                          - 0.3
 %------------------------------------------------------------------------------
 
 function default_ports_result = default_port_property()
@@ -31,7 +25,8 @@ function default_ports_result = default_port_property()
     % Original environment character encoding: GBK
     % 脚本编码环境是否为GBK
     % if ~strcmpi(get_param(0, 'CharacterEncoding'), 'GBK')
-    %     warning('Simulink:EncodingUnMatched', 'The target character encoding (%s) is different from the original (%s).',...
+    %     warning('Simulink:EncodingUnMatched', 'The target character...
+    %     encoding (%s) is different from the original (%s).',...
     %         get_param(0, 'CharacterEncoding'), 'GBK');
     % end
 
@@ -84,7 +79,10 @@ function DefaultPortProperty(paraModel, block)
                     set(inport_block(i),'SampleTime','-1');
                     set(inport_block(i),'PortDimensions','-1'); 
                 else
-                    % do nothing
+                    set(inport_block(i),'OutMin','[]');
+                    set(inport_block(i),'OutMax','[]');
+                    set(inport_block(i),'SampleTime','-1');
+                    set(inport_block(i),'PortDimensions','-1');
                 end      
             catch
                 % Do nothing
