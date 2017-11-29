@@ -3,12 +3,13 @@
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
 %   Version      : 0.7
-%   Time         : 2017/11/27
+%   Time         : 2017/11/28
 %   Instructions : Fix bugs ,modify temp name as '____'   - 0.4
 %                  Add datasource information             - 0.5
 %                  Fix bugs, messeage can report clearly  - 0.6
 %                  Code refactoring.
 %                  Adapt to MyPkg class searching         - 0.7
+%                  Add stateflow parameter                - 0.8
 %------------------------------------------------------------------------------
 function output = list_parameter()
 
@@ -76,26 +77,31 @@ function output = list_parameter()
     TABLE_NAME = 1;
     TABLE_SOURCE = 2;
     TABLE_DATATYPE = 3;
-    TABLE_DIM = 4;
-    TABLE_VALUE = 5;
+    TABLE_STORAGE = 4;
+    TABLE_DIM = 5;
+    TABLE_VALUE = 6;
     if 0 < len_simu_par
         for i = 1:len_simu_par
             simu_par_temp = getValue(simulink_par(i));
             simu_par_temp_name = simulink_par(i).Name;
             simu_par_temp_source = simulink_par(i).DataSource;
-            simu_par_temp_value = simu_par_temp.Value;
             simu_par_temp_datatype = simu_par_temp.DataType;
+            simu_par_temp_stor = simu_par_temp.CoderInfo.StorageClass;
             simu_par_temp_dim = simu_par_temp.Dimensions;
+            simu_par_temp_value = simu_par_temp.Value;
+
             if [1, 1] == simu_par_temp_dim
                 simu_par_name{index_par} = simu_par_temp_name;
                 simu_par_source{index_par} = simu_par_temp_source;
                 simu_par_datatype{index_par} = simu_par_temp_datatype;
+                simu_par_storage{index_par} = simu_par_temp_stor;
                 simu_par_value{index_par} = simu_par_temp_value;
                 index_par = index_par + 1;
             else
                 simu_table{index_table} = {simu_par_temp_name, ...
                                            simu_par_temp_source,...
                                            simu_par_temp_datatype, ...
+                                           simu_par_temp_stor, ...
                                            simu_par_temp_dim, ...
                                            simu_par_temp_value};
                 index_table = index_table + 1;
@@ -104,6 +110,21 @@ function output = list_parameter()
     end
 
     output = 'Listing is running.'
+
+    % Find stateflow parameter
+    sf = sfroot;
+    sf_parameter = sf.find('-isa','Stateflow.Data');
+    len_sf = 0;
+    if isempty(sf_parameter)
+        output = 'There is no state flow parameter in this model'
+    else
+        len_sf = length(sf_parameter);
+        for i = 1:len_sf
+            sf_par_name{i} = sf_parameter(i).Name;
+            sf_par_datatype{i} = sf_parameter(i).DataType;
+            sf_par_scope{i} = sf_parameter(i).Scope;
+        end
+    end
 
     % Define table name
     filename = [paraModel,'_list.xlsx'];
@@ -114,11 +135,14 @@ function output = list_parameter()
     xlswrite(filename, table_name_dict, 'dict', 'A1');
     table_name_only_line = {'No.', 'Old Name', 'New Name'};
     xlswrite(filename, table_name_only_line, 'only_line', 'A1')
-    table_name_simu_par = {'No.', 'Name', 'Data Source','Data Type', 'Value'};
+    table_name_simu_par = {'No.', 'Name', 'Data Source','Data Type',...
+                           'Storage Class', 'Value'};
     xlswrite(filename, table_name_simu_par, 'simu_parameter', 'A1');
     table_name_table = {'No.', 'Name','Data Source', 'Data Type',...
-                        'Row', 'Column','Value'};
+                        'Storage Class', 'Row', 'Column','Value'};
     xlswrite(filename, table_name_table, 'simu_table', 'A1');
+    table_name_sf = {'No.', 'Name', 'Scope', 'Data Type'};
+    xlswrite(filename, table_name_sf, 'sf_parameter', 'A1');
 
     % Write parameters to excel
     if 0 < len_dict
@@ -140,7 +164,7 @@ function output = list_parameter()
         xlswrite(filename, only_line_name, 'only_line', 'C2');
     else
         output = ['This model has no ',...
-                          'line name which only defined on line.']
+                          'name which defined on line only.']
     end
 
     % Write simulink parameters to excel
@@ -150,7 +174,10 @@ function output = list_parameter()
         xlswrite(filename, simu_par_name', 'simu_parameter', 'B2');
         xlswrite(filename, simu_par_source', 'simu_parameter', 'C2');
         xlswrite(filename, simu_par_datatype', 'simu_parameter', 'D2');
-        xlswrite(filename, simu_par_value', 'simu_parameter', 'E2');
+        xlswrite(filename, simu_par_storage', 'simu_parameter', 'E2')
+        xlswrite(filename, simu_par_value', 'simu_parameter', 'F2');
+    else
+        output = 'This model has no simulink parameter defined in dictionary.'
     end
 
     % Write table data to excel
@@ -163,9 +190,10 @@ function output = list_parameter()
             table_name_position = ['B' temp_pos];
             table_source_position = ['C' temp_pos];
             table_datatype_position = ['D' temp_pos];
-            table_dim_position = ['E' temp_pos];
-            % table_dim_column_position = ['F' temp_pos];
-            table_value_position = ['G' temp_pos];
+            table_storage_position = ['E' temp_pos];
+            table_dim_position = ['F' temp_pos];
+            % table_dim_column_position = ['G' temp_pos];
+            table_value_position = ['H' temp_pos];
             % Start writing
             xlswrite(filename, i, 'simu_table', ...
                      table_num_position);
@@ -175,6 +203,8 @@ function output = list_parameter()
                      'simu_table', table_source_position);
             xlswrite(filename, simu_table{i}(TABLE_DATATYPE),...
                      'simu_table', table_datatype_position);
+            xlswrite(filename, simu_table{i}(TABLE_STORAGE),...
+                     'simu_table', table_storage_position);
             xlswrite(filename, simu_table{i}{TABLE_DIM},...
                      'simu_table', table_dim_position);
             try
@@ -184,6 +214,17 @@ function output = list_parameter()
                     
             temp_dim = temp_dim + simu_table{i}{TABLE_DIM}(1);
         end
+    else
+        output = 'This model has no table parameter.'
+    end
+
+    % Write stateflow parameter to Excel
+    if 0 < len_sf
+        number_sf = [1:1:len_sf]';
+        xlswrite(filename, number_sf, 'sf_parameter', 'A2');
+        xlswrite(filename, sf_par_name', 'sf_parameter', 'B2');
+        xlswrite(filename, sf_par_scope', 'sf_parameter', 'C2');
+        xlswrite(filename, sf_par_datatype', 'sf_parameter', 'D2');
     end
 
     % close the dictionary 
