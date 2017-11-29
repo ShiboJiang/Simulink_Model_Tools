@@ -2,13 +2,14 @@
 %   Simulink scrip for rename parameters and change parameter's value
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.4
-%   Time         : 2017/11/27
+%   Version      : 0.6
+%   Time         : 2017/11/28
 %   Instructions : Add change stateflow parameter function.
 %                  Add creat new parameter function.             - 0.3
 %                  Fix bugs ,message can report clearly          - 0.4
 %                  Code refactoring                              - 0.5
-% 
+%                  Add state flow parameter changed   
+%                  Add storge calss change                       - 0.6
 %------------------------------------------------------------------------------
 function output = change_parameter()
 
@@ -134,16 +135,19 @@ function output = change_parameter()
     [num_simu_par, str_simu_par] = xlsread(filename, 'simu_parameter');
     SIMU_PAR_NAME_COL = 2;
     SIMU_PAR_DATATYPE_COL = 4;
-    SIMU_PAR_VALUE = 5;
+    SIMU_PAR_STORGE = 5;
+    SIMU_PAR_VALUE = 6;
     if ~isempty(num_simu_par)
         for i = 1:num_simu_par(end,1)
             temp_simu_par_name = str_simu_par(i+1, SIMU_PAR_NAME_COL);
             temp_simu_par_datatype = str_simu_par(i+1, SIMU_PAR_DATATYPE_COL);
+            temp_simu_par_storge = str_simu_par(i+1, SIMU_PAR_STORGE);
             temp_simu_par_value = num_simu_par(i, SIMU_PAR_VALUE);
             % Set new property
             temp_return = SetDictParameter(dic_entry,...
                                         temp_simu_par_name{1},...
                                         temp_simu_par_datatype{1},...
+                                        temp_simu_par_storge{1},...
                                         temp_simu_par_value);
             % Report whether set successful
             if strcmp('Invalid name', temp_return)
@@ -168,6 +172,7 @@ function output = change_parameter()
                 SetDictParameter(dic_entry,...
                                 temp_simu_par_name{1},...
                                 temp_simu_par_datatype{1},...
+                                temp_simu_par_storge{1},...
                                 temp_simu_par_value);
                 output = ['The parameter "' ,...
                           temp_simu_par_name{1},...
@@ -183,8 +188,10 @@ function output = change_parameter()
     [num_simu_table, str_simu_table] = xlsread(filename, 'simu_table');
     TABLE_NAME_COL = 2;
     TABLE_DATATYPE_COL = 4;
-    TABLE_ROW_SPACE_COL = 5;
-    TABLE_COL_SPACE_COL = 6;
+    TABLE_STORGE_COL = 5;
+    TABLE_ROW_SPACE_COL = 6;
+    TABLE_COL_SPACE_COL = 7;
+    TABLE_VALUE_COL = 8;
     % Judge whether need writing talbe data
     if ~isempty(num_simu_table)
         len_simu_table_temp = length(num_simu_table(:,1));
@@ -200,16 +207,18 @@ function output = change_parameter()
         for i = 1: cycle_time_tale
             temp_table_name = str_simu_table(1+temp_row, TABLE_NAME_COL);
             temp_table_datatype = str_simu_table(1+temp_row, TABLE_DATATYPE_COL);
+            temp_table_storge = str_simu_table(1+temp_row, TABLE_STORGE_COL);
             temp_row_spacing = num_simu_table(temp_row, TABLE_ROW_SPACE_COL);
             temp_column_spacing = num_simu_table(temp_row, TABLE_COL_SPACE_COL);
             temp_table_data = num_simu_table(temp_row:...
                                 (temp_row + temp_row_spacing - 1),...
-                                7:(7 + temp_column_spacing - 1));
+                    TABLE_VALUE_COL:(TABLE_VALUE_COL + temp_column_spacing - 1));
             
             % Set new property
             temp_return = SetDictParameter(dic_entry,...
                                         temp_table_name{1},...
                                         temp_table_datatype{1},...
+                                        temp_table_storge{1},...
                                         temp_table_data);
             % Report whether creat new parameter
             if strcmp('Invalid name', temp_return)
@@ -234,6 +243,7 @@ function output = change_parameter()
                 SetDictParameter(dic_entry,...
                                 temp_table_name{1},...
                                 temp_table_datatype{1},...
+                                temp_table_storge{1},...
                                 temp_table_data);
                 output = ['The parameter "' ,...
                           temp_table_name{1},...
@@ -244,6 +254,34 @@ function output = change_parameter()
         output = 'Change table data successful.'
     else
         output = 'No table data changed.'
+    end
+
+    % Find stateflow in the excel,and change it.
+    [num_sf_par, str_sf_par] = xlsread(filename, 'sf_parameter');
+    SF_NAME_COL = 2;
+    SF_SCOPE_COL = 3;
+    SF_DATATYPE_COL = 4;
+    if isempty(num_sf_par)
+        output = 'No state flow parameter need changed.'
+    else
+        for i = 1:num_sf_par(end,1)
+            temp_sf_name = str_sf_par(i+1, SF_NAME_COL);
+            temp_sf_scope = str_sf_par(i+1, SF_SCOPE_COL);
+            temp_sf_datatype = str_sf_par(i+1, SF_DATATYPE_COL);
+            % Find state flow parameter in model
+            sf = sfroot;
+            temp_sf_par = sf.find('-isa','Stateflow.Data','Name',temp_sf_name{1});
+            if isempty(temp_sf_par)
+                % Report this state flow need defined in matlab
+                output = ['The parameter "', temp_sf_name{1},...
+                          '" does not exit, it needs be defined in state flow']
+            else
+                % Change sf parameter
+                set(temp_sf_par, 'Scope', temp_sf_scope{1},...
+                    'DataType', temp_sf_datatype{1});
+            end
+        end
+        output = 'Change state flow parameter successful.'
     end
 
     % Save changes to the dictionary and close it.
@@ -280,7 +318,7 @@ end
 %-----------------End of function----------------------------------------------
 
 %-----------Start of function--------------------------------------------------
-function output = SetDictParameter(entry, name, data_type, value)
+function output = SetDictParameter(entry, name, data_type, storge, value)
     % Find the parameter name in dict
     simu_par = find(entry, 'Name', name);
     if isempty(simu_par)
@@ -289,6 +327,7 @@ function output = SetDictParameter(entry, name, data_type, value)
         output = 'Valid name';
         temp_change = getValue(simu_par);
         temp_change.DataType = data_type;
+        temp_change.CoderInfo.StorageClass = storge;
         temp_change.Value = value;
         % Write dict
         setValue(simu_par, temp_change);
