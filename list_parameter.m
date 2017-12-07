@@ -3,13 +3,14 @@
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
 %   Version      : 0.7
-%   Time         : 2017/11/28
+%   Time         : 2017/12/7
 %   Instructions : Fix bugs ,modify temp name as '____'   - 0.4
 %                  Add datasource information             - 0.5
 %                  Fix bugs, messeage can report clearly  - 0.6
 %                  Code refactoring.
 %                  Adapt to MyPkg class searching         - 0.7
 %                  Add stateflow parameter                - 0.8
+%                  Fix bugs                               - 0.9
 %------------------------------------------------------------------------------
 function output = list_parameter()
 
@@ -51,14 +52,14 @@ function output = list_parameter()
     % Get line's name which is not defined in dictionary
     all_line = find_system(paraModel,'FindAll','on','type','line');
     j = 1;
-    APPEND_LENGTH = 3;
+    APPEND_LENGTH = 4;
     for i = 1:length(all_line)
         current_line_name = get(all_line(i), 'Name');
         try
-            if strcmp('____', current_line_name(APPEND_LENGTH-3:end))
+            if strcmp('____', current_line_name((end-APPEND_LENGTH+1):end))
                 % Revert the line's name
                 set_param(all_line(i), 'Name', ...
-                          current_line_name(1:(APPEND_LENGTH-1)));
+                          current_line_name(1:(end - (APPEND_LENGTH))));
             else
                 only_line_name{j} = current_line_name;
                 j = j + 1;
