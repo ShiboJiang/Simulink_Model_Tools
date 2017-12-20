@@ -2,8 +2,8 @@
 %   Simulink scrip for ERT configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2017/11/29
-%   Version: 0.9.7
+%   Shibo Jiang    2017/12/19
+%   Version: 0.9.9
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ function Configurate = ERT_configuration()
     set_param(paraModel, 'EnableConcurrentExecution', 'off');   % Show concurrent execution options
     set_param(paraModel, 'SampleTimeConstraint', 'Unconstrained');   % Periodic sample time constraint
     set_param(paraModel, 'Solver', 'FixedStepDiscrete');   % Solver
-    set_param(paraModel, 'FixedStep', 'auto');   % Fixed-step size (fundamental sample time)
+    set_param(paraModel, 'FixedStep', '0.002');   % Fixed-step size (fundamental sample time)
     set_param(paraModel, 'EnableMultiTasking', 'on');   % Treat each discrete rate as a separate task
     set_param(paraModel, 'AutoInsertRateTranBlk', 'off');   % Automatically handle rate transition for data transfer
     set_param(paraModel, 'PositivePriorityOrder', 'off');   % Higher priority value indicates higher task priority
@@ -161,7 +161,7 @@ function Configurate = ERT_configuration()
     set_param(paraModel, 'CheckMatrixSingularityMsg', 'warning');   % Division by singular matrix
     set_param(paraModel, 'IntegerSaturationMsg', 'error');   % Saturate on overflow
     set_param(paraModel, 'UnderSpecifiedDataTypeMsg', 'warning');   % Underspecified data types
-    set_param(paraModel, 'SignalRangeChecking', 'warning');   % Simulation range checking
+    set_param(paraModel, 'SignalRangeChecking', 'error');   % Simulation range checking
     set_param(paraModel, 'IntegerOverflowMsg', 'error');   % Wrap on overflow
     set_param(paraModel, 'SignalInfNanChecking', 'warning');   % Inf or NaN block output
     set_param(paraModel, 'RTPrefix', 'warning');   % "rt" prefix for identifiers
@@ -173,7 +173,7 @@ function Configurate = ERT_configuration()
     set_param(paraModel, 'ReadBeforeWriteMsg', 'EnableAllAsWarning');   % Detect read before write
     set_param(paraModel, 'WriteAfterReadMsg', 'EnableAllAsWarning');   % Detect write after read
     set_param(paraModel, 'WriteAfterWriteMsg', 'EnableAllAsWarning');   % Detect write after write
-    set_param(paraModel, 'MultiTaskDSMMsg', 'warning');   % Multitask data store
+    set_param(paraModel, 'MultiTaskDSMMsg', 'error');   % Multitask data store
     set_param(paraModel, 'UniqueDataStoreMsg', 'warning');   % Duplicate data store names
     set_param(paraModel, 'UnderspecifiedInitializationDetection', 'Simplified');   % Underspecified initialization detection
     set_param(paraModel, 'ArrayBoundsChecking', 'none');   % Array bounds exceeded
@@ -466,5 +466,5 @@ function Configurate = ERT_configuration()
     % HDL Coder
     hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-    Configurate = 'ERT config successful,script version 0.9.7';
+    Configurate = 'ERT config successful,script version 0.9.9';
 end
