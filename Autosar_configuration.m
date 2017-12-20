@@ -2,8 +2,8 @@
 %   Simulink scrip for Autosar configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2017/11/29
-%   Version: 0.9.7
+%   Shibo Jiang    2017/12/19
+%   Version: 0.9.9
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -164,7 +164,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'CheckMatrixSingularityMsg', 'warning');   % Division by singular matrix
     set_param(paraModel, 'IntegerSaturationMsg', 'error');   % Saturate on overflow
     set_param(paraModel, 'UnderSpecifiedDataTypeMsg', 'warning');   % Underspecified data types
-    set_param(paraModel, 'SignalRangeChecking', 'warning');   % Simulation range checking
+    set_param(paraModel, 'SignalRangeChecking', 'error');   % Simulation range checking
     set_param(paraModel, 'IntegerOverflowMsg', 'error');   % Wrap on overflow
     set_param(paraModel, 'SignalInfNanChecking', 'warning');   % Inf or NaN block output
     set_param(paraModel, 'RTPrefix', 'warning');   % "rt" prefix for identifiers
@@ -176,7 +176,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'ReadBeforeWriteMsg', 'EnableAllAsWarning');   % Detect read before write
     set_param(paraModel, 'WriteAfterReadMsg', 'EnableAllAsWarning');   % Detect write after read
     set_param(paraModel, 'WriteAfterWriteMsg', 'EnableAllAsWarning');   % Detect write after write
-    set_param(paraModel, 'MultiTaskDSMMsg', 'warning');   % Multitask data store
+    set_param(paraModel, 'MultiTaskDSMMsg', 'error');   % Multitask data store
     set_param(paraModel, 'UniqueDataStoreMsg', 'warning');   % Duplicate data store names
     set_param(paraModel, 'UnderspecifiedInitializationDetection', 'Simplified');   % Underspecified initialization detection
     set_param(paraModel, 'ArrayBoundsChecking', 'none');   % Array bounds exceeded
@@ -399,10 +399,10 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'UseToolchainInfoCompliant', 'on');   % UseToolchainInfoCompliant
     set_param(paraModel, 'RemoveDisableFunc', 'off');   % Remove disable function
     set_param(paraModel, 'MemSecPackage', '--- None ---');   % Memory sections package for model data and functions
-    set_param(paraModel, 'GlobalDataDefinition', 'on');   % Data definition
+    set_param(paraModel, 'GlobalDataDefinition', 'Auto');   % Data definition
     set_param(paraModel, 'GlobalDataReference', 'Auto');   % Data declaration
     set_param(paraModel, 'ExtMode', 'off');   % External mode
-    set_param(paraModel, 'EnableUserReplacementTypes', 'off');   % Replace data type names in the generated code
+    set_param(paraModel, 'EnableUserReplacementTypes', 'on');   % Replace data type names in the generated code
     set_param(paraModel, 'ConvertIfToSwitch', 'on');   % Convert if-elseif-else patterns to switch-case statements
     set_param(paraModel, 'ERTCustomFileTemplate', 'example_file_process.tlc');   % File customization template
     set_param(paraModel, 'ERTDataHdrFileTemplate', 'ert_code_template.cgt');   % Header file template
@@ -472,5 +472,5 @@ function Configurate = Autosar_configuration()
     % HDL Coder
     hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-    Configurate = 'Autosar config successful, script version 0.9.7';
+    Configurate = 'Autosar config successful, script version 0.9.9';
 end
