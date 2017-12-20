@@ -51,6 +51,10 @@
 |0.9.4|将`4.4.7 Bus signal treated as vector`诊断设为`error`，将菜单栏`Display > Signals & Ports >`其中`Wide Nonscalar Lines`、`Viewer Indicator`、`Test point & Logging Indicator`、`Linearization Indicators` 这四项进行勾选显示 |2017/10/13|姜世博
 |0.9.5|将`4.2.4 Saturate on overflow`设为`error`; 将菜单栏`Display > Library Links`选项设为`none`; 增加模型默认字体配置，字体设为`Arial`，字号设为`10`|2017/10/25|姜世博|
 |0.9.6|arxml文件导入后各Runnable可能设为不同采样时间，为满足此类要求，将`1.3 Fixed-step size`设为`auto`; 将`4.2.7 Simulation range checking`设为`warning`; | 2017/11/2 | 姜世博|
+|0.9.7|修改代码生成时，数据类型的标记符号，改为`'float64','float32','sint32','sint16','sint8','uint32','uint16','uint8','boolean'`；修改 4.6 `Automatic solver parameter selection`诊断选项，改为`None`|2017/11/29|姜世博|
+|0.9.7.1|紧急修复上一版本中 无法将 Autosar 目标配置成 自定义数据类型 的bug，其它无变动|2017/12/1| 姜世博|
+|0.9.8|1. 将ERT目标配置`1.3 Fixed-step size`设为`0.002`，如果和当前模型不符需要自行修改；2. 将`4.2.15 Multitask data store`诊断项设为`error`|2017/12/8| 姜世博 |
+|0.9.9 |为了满足ISO26262检测，将 `4.2.7 Simulation range checking` 设为`error`|2017/12/19|姜世博|
 
 
 # 1. Solver 求解器的设定
