@@ -2,7 +2,10 @@
 %   Simulink scrip for rename the blocks' name to signals' name
 %   MATLAB version: R2017a
 %   Author        : Shibo Jiang 
-%   Version       : 0.1
+%   Time          : 2017/12/20
+%   Version       : Creat as initial                               - 0.1
+%                   Support goto & from block   
+%                   Code refactoring                               - 0.2
 %   Instructions  : 
 %------------------------------------------------------------------------------
 
@@ -23,7 +26,11 @@ function rename_sig_result = rename_sig_to_port()
     % find all blocks which needed
     inport_block = find_system(paraModel,'FindAll','on','BlockType','Inport');
     outport_block = find_system(paraModel,'FindAll','on','BlockType','Outport');
+    goto_block = find_system(paraModel, 'FindAll','on','BlockType','Goto');
+    from_block = find_system(paraModel,'FindAll','on','BlockType','From');
+
     all_line = find_system(paraModel,'FindAll','on','type','line');
+
     % filter lines which can be named
     n = 0;
     for i = 1:length(all_line)
@@ -33,34 +40,36 @@ function rename_sig_result = rename_sig_to_port()
             filter_lines(n) = all_line(i);        
         end
     end
-    % rename them
-    RenameSigName(inport_block, filter_lines);
-    RenameSigName(outport_block, filter_lines);
+    % Rename them
+    RenameSigName(goto_block, filter_lines, 'DstBlockHandle', 'GotoTag');
+    RenameSigName(from_block, filter_lines, 'SrcBlockHandle', 'GotoTag');
+    RenameSigName(inport_block, filter_lines, 'SrcBlockHandle', 'Name');
+    RenameSigName(outport_block, filter_lines, 'DstBlockHandle', 'Name');
 
     rename_sig_result = 'Rename signal lines successful';
 end
 %-----------End of function----------------------------------------------------
 
 %-----------Start of function--------------------------------------------------
-function RenameSigName(blocks, lines)
+function RenameSigName(blocks, lines, connect_handle, name_par)
     length_lines = length(lines);
-    length_block = length(blocks);
-    % judge reference handles type
-    if strcmp('Inport', get_param(blocks(1), 'BlockType'))
-        handle_type = 'SrcBlockHandle';
+    % Judge whether block is empty
+    if isempty(blocks)
+        % Do Nothing
     else
-        handle_type = 'DstBlockHandle';
-    end
-    % find block links and rename them
-    for i = 1:length_block
-        current_handle = num2str(get_param(blocks(i),'Handle'));
-        for j = 1:length_lines
-            % calculate reference handle
-            reference_handle = num2str(get_param(lines(j), handle_type));
-            if strcmp(current_handle, reference_handle)
-                target_name = get_param(blocks(i), 'Name');
-                set_param(lines(j), 'Name', target_name);
-                break;
+        length_block = length(blocks);
+        % find block links and rename them
+        for i = 1:length_block
+            current_handle = num2str(get_param(blocks(i),'Handle'));
+            for j = 1:length_lines
+                % calculate reference handle
+                reference_handle = num2str(get_param(lines(j), ...
+                                           connect_handle));
+                if strcmp(current_handle, reference_handle)
+                    target_name = get_param(blocks(i), name_par);
+                    set_param(lines(j), 'Name', target_name);
+                    break;
+                end
             end
         end
     end
