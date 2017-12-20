@@ -2,7 +2,10 @@
 %   Simulink scrip for rename the blocks' name to signals' name
 %   MATLAB version: R2017a
 %   Author        : Shibo Jiang 
-%   Version       : 0.1
+%   Time          : 2017/12/20
+%   Version       : Initial                                   -0.1
+%                   Support goto & from block   
+%                   Code refactoring                          -0.2
 %   Instructions  : 
 %------------------------------------------------------------------------------
 
@@ -30,58 +33,57 @@ function rename_ports_result = rename_port_to_sig()
 
     % find all inport block
     inport_block = find_system(paraModel,'FindAll','on','BlockType','Inport');
-    % rename inport blocks to signals' name
-    length_inport = length(inport_block);
-    for i = 1:length_inport
-        current_out_sig_name = get(inport_block(i),'OutputSignalNames');
-        % translate cell to string
-        current_out_sig_name = cell2mat(current_out_sig_name);
-        if 1 == isempty(current_out_sig_name)
-            % Do nothing. output line has no name defined.       
-        else
-            % find if tag symbol '<' exit
-            if strcmp('<',current_out_sig_name(1))
-                % remove the tag symbol '< >'
-                current_out_sig_name = current_out_sig_name(2:end-1);
-            else
-                % Do nothing
-            end
-            % rename
-            try
-                set(inport_block(i),'Name',current_out_sig_name);        
-            catch
-                
-            end
-        end
-    end
-
     % find all outport block
     outport_block = find_system(paraModel,'FindAll','on',...
                                       'BlockType','Outport');
+    % Find all Goto block
+    goto_block = find_system(paraModel, 'FindAll','on','BlockType','Goto');
+    % Find all From block
+    from_block = find_system(paraModel,'FindAll','on','BlockType','From');
+
+    % rename inport blocks to signals' name
+    SetPortName(inport_block, 'OutputSignalNames', 'Name');
     % rename outport blocks to signals' name
-    length_outport = length(outport_block);
-    for i = 1:length_outport
-        current_in_sig_name = get(outport_block(i),'InputSignalNames');
-        % translate cell to string
-        current_in_sig_name = cell2mat(current_in_sig_name);
-        if 1 == isempty(current_in_sig_name)
-            % Do nothing. input line has no name defined.
-        else
-            % find if tag symbol '<' exit
-            if strcmp('<',current_in_sig_name(1))
-                % remove the tag symbol '< >'
-                current_in_sig_name = current_in_sig_name(2:end-1);
-            else
-                % Do nothing
-            end
-            % rename
-            try
-            set_param(outport_block(i),'Name',current_in_sig_name);         
-            catch
-                
-            end
-        end
-    end
+    SetPortName(outport_block, 'InputSignalNames', 'Name');
+    % Rename Goto blocks to signals's name
+    SetPortName(goto_block, 'InputSignalNames','GotoTag');
+    % Rename From blocks to signals's name
+    SetPortName(from_block, 'OutputSignalNames','GotoTag');
+
+    
 
     rename_ports_result = 'rename port to signal name successful';
 end
+%-----------------End of function----------------------------------------------
+
+%-----------Start of function--------------------------------------------------
+function SetPortName(block, get_type, set_type)
+    if isempty(block)
+        % Do nothing
+    else
+        length_block = length(block);
+        for i = 1:length_block
+            current_sig_name = get(block(i), get_type);
+            % translate cell to string
+            current_sig_name = cell2mat(current_sig_name);
+            if 1 == isempty(current_sig_name)
+                % Do nothing. output line has no name defined.       
+            else
+                % find if tag symbol '<' exit
+                if strcmp('<',current_sig_name(1))
+                    % remove the tag symbol '< >'
+                    current_sig_name = current_sig_name(2:end-1);
+                else
+                    % Do nothing
+                end
+                % rename
+                try
+                    set(block(i), set_type, current_sig_name);        
+                catch
+                    
+                end
+            end
+        end
+    end
+end
+%-----------------End of function----------------------------------------------
