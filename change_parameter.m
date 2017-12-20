@@ -2,14 +2,15 @@
 %   Simulink scrip for rename parameters and change parameter's value
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.6
-%   Time         : 2017/11/28
+%   Version      : 0.7
+%   Time         : 2017/12/20
 %   Instructions : Add change stateflow parameter function.
 %                  Add creat new parameter function.             - 0.3
 %                  Fix bugs ,message can report clearly          - 0.4
 %                  Code refactoring                              - 0.5
 %                  Add state flow parameter changed   
 %                  Add storge calss change                       - 0.6
+%                  Support goto & from block                     - 0.7
 %------------------------------------------------------------------------------
 function output = change_parameter()
 
@@ -105,6 +106,13 @@ function output = change_parameter()
                 sf = sfroot;
                 par_sf_data = sf.find('-isa','Stateflow.Data',...
                                                'Name', temp_old);
+                % Find the goto block
+                par_goto = find_system(paraModel,'FindAll','on',...
+                             'BlockType', 'Goto','GotoTag', temp_old);
+                % Find the from block
+                par_from = find_system(paraModel,'FindAll','on',...
+                             'BlockType', 'From','GotoTag', temp_old);
+                
 
                 % Set new name
                 try
@@ -117,6 +125,8 @@ function output = change_parameter()
                 SetNewName(par_nd_table, 'Table', temp_new);
                 SetNewName(par_direct_table, 'Table', temp_new);
                 SetNewName(par_sf_data, 'Name', temp_new);
+                SetNewName(par_goto, 'GotoTag', temp_new);
+                SetNewName(par_from, 'GotoTag', temp_new);
 
                 % Store diff name for changing value
                 old_name{i_diff_name} = temp_old;
@@ -295,22 +305,26 @@ end
 
 %-----------Start of function--------------------------------------------------
 function SetNewName(input, item, new_name)
-    if 1 < length(input)
-        for i = 1:length(input)
-            try
-                set_param(input(i), item, new_name);
-            catch
+    if isempty(input)
+        % Do Nothing
+    else
+        if 1 < length(input)
+            for i = 1:length(input)
                 try
-                    set(input(i), item, new_name);
+                    set_param(input(i), item, new_name);
+                catch
+                    try
+                        set(input(i), item, new_name);
+                    end
                 end
             end
-        end
-    else
-        try
-            set_param(input, item, new_name);
-        catch
+        else
             try
-                set(input, item, new_name);
+                set_param(input, item, new_name);
+            catch
+                try
+                    set(input, item, new_name);
+                end
             end
         end
     end
