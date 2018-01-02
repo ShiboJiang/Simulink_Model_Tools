@@ -2,8 +2,8 @@
 %   Simulink scrip for Autosar configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2017/12/19
-%   Version: 0.9.9
+%   Shibo Jiang    2017/12/28
+%   Version: 1.0
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ function Configurate = Autosar_configuration()
     % Model Referencing
     set_param(paraModel, 'UpdateModelReferenceTargets', 'IfOutOfDateOrStructuralChange');   % Rebuild
     set_param(paraModel, 'EnableParallelModelReferenceBuilds', 'off');   % Enable parallel model reference builds
-    set_param(paraModel, 'ModelReferenceNumInstancesAllowed', 'Multi');   % Total number of instances allowed per top model
+    set_param(paraModel, 'ModelReferenceNumInstancesAllowed', 'Single');   % Total number of instances allowed per top model
     set_param(paraModel, 'PropagateVarSize', 'Infer from blocks in model');   % Propagate sizes of variable-size signals
     set_param(paraModel, 'ModelReferenceMinAlgLoopOccurrences', 'off');   % Minimize algebraic loop occurrences
     set_param(paraModel, 'EnableRefExpFcnMdlSchedulingChecks', 'on');   % Enable strict scheduling checks for referenced export-function models
@@ -472,5 +472,5 @@ function Configurate = Autosar_configuration()
     % HDL Coder
     hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-    Configurate = 'Autosar config successful, script version 0.9.9';
+    Configurate = 'Autosar config successful, script version 1.0';
 end
