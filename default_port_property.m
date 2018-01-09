@@ -2,10 +2,13 @@
 %   Simulink scrip for change ports property to default
 %   MATLAB version: R2017a
 %   Author        : Shibo Jiang 
-%   Version       : 0.3
+%   Version       : 0.4
+%   Time          : 2018/1/8
 %   Instructions  : 修改bug，仅对模型root层输入输出端口进行修改           - 0.2
 %                   策略修改，仅还原能够使用信号线上后缀名字定义的数据
 %                   类型的端口                                          - 0.3
+%                   修改策略，针对上一版本修改的策略，这版同时恢复其它
+%                   端口的非数据类型  选项，例如 最大最小值范围等          - 0.4
 %------------------------------------------------------------------------------
 
 function default_ports_result = default_port_property()
@@ -30,8 +33,10 @@ function default_ports_result = default_port_property()
     %         get_param(0, 'CharacterEncoding'), 'GBK');
     % end
 
-    DefaultPortProperty(paraModel, 'Inport')
-    DefaultPortProperty(paraModel, 'Outport')
+    DefaultPortProperty(paraModel, 'Inport');
+    DefaultPortProperty(paraModel, 'Outport');
+    DefaultPortProperty2(paraModel, 'Inport');
+    DefaultPortProperty2(paraModel, 'Outport');
 
     default_ports_result = 'change port property to default value successful';
 end
@@ -118,6 +123,27 @@ function set_datatype = CalculateDataType(data_type_in)
         set_datatype = 'boolean';
     otherwise
         set_datatype = 'None';
+    end
+end
+%-----------------End of function----------------------------------------------
+
+%-----------Start of function--------------------------------------------------
+function DefaultPortProperty2(paraModel, block)
+    % Find the block 
+    block = find_system(paraModel,'SearchDepth', '1','FindAll','on',...
+                        'BlockType',block);
+    if ~isempty(block)
+        for i = 1:length(block)
+            try
+                % Set the block's porperty to default value 
+                set(block(i),'OutMin','[]');
+                set(block(i),'OutMax','[]');
+                set(block(i),'SampleTime','-1');
+                set(block(i),'PortDimensions','-1');
+            catch
+                % Do nothing
+            end
+        end
     end
 end
 %-----------------End of function----------------------------------------------
