@@ -2,8 +2,8 @@
 %   Simulink scrip for ERT configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2017/12/19
-%   Version: 0.9.9
+%   Shibo Jiang    2018/1/8
+%   Version: 1.0
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -466,5 +466,5 @@ function Configurate = ERT_configuration()
     % HDL Coder
     hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-    Configurate = 'ERT config successful,script version 0.9.9';
+    Configurate = 'ERT config successful,script version 1.0';
 end
