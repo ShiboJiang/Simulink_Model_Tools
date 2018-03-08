@@ -8,7 +8,7 @@
 % 
 %------------------------------------------------------------------------------
 
-%-----Start of create_can_signal_model------------------------------------------
+%-----Start of create_can_signal_model-----------------------------------------
 function output = create_can_signal_model()
 
     paraModel = bdroot;
