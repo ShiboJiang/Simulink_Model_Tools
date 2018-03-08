@@ -8,8 +8,8 @@
 % 
 %------------------------------------------------------------------------------
 
-%-----Start of creat_can_signal_model------------------------------------------
-function output = creat_can_signal_model()
+%-----Start of create_can_signal_model------------------------------------------
+function output = create_can_signal_model()
 
     paraModel = bdroot;
 
@@ -58,7 +58,7 @@ end
 
 %-----Start of CreatBlocks-----------------------------------------------------
 function CreatBlocks(name, factor, offset, dest, paraModel, index)
-    % Add inport block
+    % Add inport block---------------------------------------------------------
     in_dest_name = [dest,'/', name];
     add_block('simulink/Sources/In1',in_dest_name);
     % Move block
@@ -66,12 +66,157 @@ function CreatBlocks(name, factor, offset, dest, paraModel, index)
                               'Inport','Name',name);
     current_pos = get(target_block,'Position');
     % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
-    target_pos = current_pos;
-    target_pos(2) = target_pos(2) + (index*150);
-    target_pos(4) = target_pos(4) + (index*150);
-    set(target_block,'Position',target_pos);
+    target_pos_base = current_pos;
+    target_pos_base(2) = target_pos_base(2) + (index*150);
+    target_pos_base(4) = target_pos_base(4) + (index*150);
+    set(target_block,'Position',target_pos_base);
+    % -------------------------------------------------------------------------
 
-    % Add factor block
-    
+    % Add product block--------------------------------------------------------
+    product_name = ['product','_',num2str(index)];
+    product_dest_name = [dest,'/',product_name];
+    add_block('simulink/Math Operations/Product',product_dest_name);
+    % Move block
+    tar_block_product = find_system(paraModel,'FindAll','on','BlockType',...
+                              'Product','Name',product_name);
+    cur_pos_product = get(tar_block_product,'Position');
+    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+    tar_pos_product = cur_pos_product;
+    tar_pos_product(2) = tar_pos_product(2) + (index*150);
+    tar_pos_product(4) = tar_pos_product(4) + (index*150);
+    % horizontal direction same as inport
+    diff_product_in = tar_pos_product(2) - target_pos_base(2);
+    tar_pos_product(2) = target_pos_base(2);
+    tar_pos_product(4) = tar_pos_product(4) - diff_product_in;
+    % Vertical direction down to inport 120
+    diff_product_in = tar_pos_product(1) - target_pos_base(1);
+    tar_pos_product(1) = target_pos_base(1) + 120;
+    tar_pos_product(3) = tar_pos_product(3) - diff_product_in + 120;
+    set(tar_block_product,'Position',tar_pos_product);
+    % Hide product name
+    set(tar_block_product,'ShowName','off');
+    % -------------------------------------------------------------------------
+
+    % Add factor block--------------------------------------------------------
+    factor_name = [name,'_','fac'];
+    factor_dest_name = [dest,'/',factor_name];
+    add_block('simulink/Sources/Constant',factor_dest_name);
+    % Move block
+    tar_block_fac = find_system(paraModel,'FindAll','on','BlockType',...
+                              'Constant','Name',factor_name);
+    cur_pos_fac = get(tar_block_fac,'Position');
+    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+    tar_pos_fac = cur_pos_fac;
+    tar_pos_fac(2) = tar_pos_fac(2) + (index*150);
+    tar_pos_fac(4) = tar_pos_fac(4) + (index*150);
+    % Horizontal direction down to inport 50
+    diff_fac_in = tar_pos_fac(2) - target_pos_base(2);
+    tar_pos_fac(2) = target_pos_base(2) + 50;
+    tar_pos_fac(4) = tar_pos_fac(4) - diff_fac_in + 50;
+    % Vertical direction direction same as inport
+    diff_fac_in = tar_pos_fac(1) - target_pos_base(1);
+    tar_pos_fac(1) = target_pos_base(1);
+    tar_pos_fac(3) = tar_pos_fac(3) - diff_fac_in;
+    set(tar_block_fac,'Position',tar_pos_fac);
+    % Hide factor name
+    % set(tar_block_fac,'ShowName','off');
+    % Set constant value
+    set(tar_block_fac,'Value',factor_name);
+    try
+        factor_defined = Simulink.Signal;
+        factor_defined.DataType = 'single';
+        assignin('base',factor_name,factor_defined);
+    end
+    % -------------------------------------------------------------------------
+
+    % Add add block------------------------------------------------------------
+    add_name = ['add','_',num2str(index)];
+    add_dest_name = [dest,'/',add_name];
+    add_block('simulink/Math Operations/Add',add_dest_name);
+    % Move block
+    tar_block_add = find_system(paraModel,'FindAll','on','BlockType',...
+                              'Sum','Name',add_name);
+    cur_pos_add = get(tar_block_add,'Position');
+    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+    tar_pos_add = cur_pos_add;
+    tar_pos_add(2) = tar_pos_add(2) + (index*150);
+    tar_pos_add(4) = tar_pos_add(4) + (index*150);
+    % horizontal direction down to inport 10
+    diff_add_in = tar_pos_add(2) - target_pos_base(2);
+    tar_pos_add(2) = target_pos_base(2) + 10;
+    tar_pos_add(4) = tar_pos_add(4) - diff_add_in + 10;
+    % Vertical direction down to inport 200
+    diff_add_in = tar_pos_add(1) - target_pos_base(1);
+    tar_pos_add(1) = target_pos_base(1) + 200;
+    tar_pos_add(3) = tar_pos_add(3) - diff_add_in + 200;
+    set(tar_block_add,'Position',tar_pos_add);
+    % Hide product name
+    set(tar_block_add,'ShowName','off');
+    % -------------------------------------------------------------------------
+
+    % Add offset block---------------------------------------------------------
+    offset_name = [name,'_','offset'];
+    offset_dest_name = [dest,'/',offset_name];
+    add_block('simulink/Sources/Constant',offset_dest_name);
+    % Move block
+    tar_block_offset = find_system(paraModel,'FindAll','on','BlockType',...
+                              'Constant','Name',offset_name);
+    cur_pos_offset = get(tar_block_offset,'Position');
+    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+    tar_pos_offset = cur_pos_offset;
+    tar_pos_offset(2) = tar_pos_offset(2) + (index*150);
+    tar_pos_offset(4) = tar_pos_offset(4) + (index*150);
+    % Horizontal direction down to inport 50
+    diff_offset_in = tar_pos_offset(2) - target_pos_base(2);
+    tar_pos_offset(2) = target_pos_base(2) + 50;
+    tar_pos_offset(4) = tar_pos_offset(4) - diff_offset_in + 50;
+    % Vertical direction down to inport 120
+    diff_offset_in = tar_pos_offset(1) - target_pos_base(1);
+    tar_pos_offset(1) = target_pos_base(1) + 120;
+    tar_pos_offset(3) = tar_pos_offset(3) - diff_offset_in + 120;
+    set(tar_block_offset,'Position',tar_pos_offset);
+    % Hide offset name
+    % set(tar_block_offset,'ShowName','off');
+    % Set constant value
+    set(tar_block_offset,'Value',offset_name);
+    try
+        offset_defined = Simulink.Signal;
+        offset_defined.DataType = 'single';
+        assignin('base',offset_name,offset_defined);
+    end
+    % -------------------------------------------------------------------------
+
+    % Add out block------------------------------------------------------------
+    out_name = [name,'_','out'];
+    out_dest_name = [dest,'/',out_name];
+    add_block('simulink/Sinks/Out1',out_dest_name);
+    % Move block
+    tar_block_out = find_system(paraModel,'FindAll','on','BlockType',...
+                              'Outport','Name',out_name);
+    cur_pos_out = get(tar_block_out,'Position');
+    % Y down 150 ,Position[a,b,c,d], out b,d sametime can move in Y.
+    tar_pos_out = cur_pos_out;
+    tar_pos_out(2) = tar_pos_out(2) + (index*150);
+    tar_pos_out(4) = tar_pos_out(4) + (index*150);
+    % horizontal direction down to inport 20
+    diff_out_in = tar_pos_out(2) - target_pos_base(2);
+    tar_pos_out(2) = target_pos_base(2) + 20;
+    tar_pos_out(4) = tar_pos_out(4) - diff_out_in + 20;
+    % Vertical direction down to inport 300
+    diff_out_in = tar_pos_out(1) - target_pos_base(1);
+    tar_pos_out(1) = target_pos_base(1) + 300;
+    tar_pos_out(3) = tar_pos_out(3) - diff_out_in + 300;
+    set(tar_block_out,'Position',tar_pos_out);
+    % Hide product name
+    % set(tar_block_out,'ShowName','off');
+    % -------------------------------------------------------------------------
+
+    % Add lines----------------------------------------------------------------
+    add_line(dest,[name,'/1'],[product_name,'/1']);
+    add_line(dest,[factor_name,'/1'],[product_name,'/2']);
+    add_line(dest,[product_name,'/1'],[add_name,'/1']);
+    add_line(dest,[offset_name,'/1'],[add_name,'/2']);
+    add_line(dest,[add_name,'/1'],[out_name,'/1']);
+    % -------------------------------------------------------------------------
 end
 %-----End of CreatBlocks-------------------------------------------------------

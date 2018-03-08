@@ -41,7 +41,7 @@ function hide_port_name_result = hide_name_ports()
     length_hide_name_line = length(hide_name_ports);
     for i = 1:length_hide_name_line
         try
-            set_param(hide_name_ports(i),'ShowName','off')
+            set_param(hide_name_ports(i),'ShowName','off');
         catch
             % do nothing
         end

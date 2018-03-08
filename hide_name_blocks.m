@@ -84,7 +84,7 @@ function hide_block_name_result = hide_name_blocks()
     length_hide_name_line = length(hide_name_blocks);
     for i = 1:length_hide_name_line
         try
-            set_param(hide_name_blocks(i),'ShowName','off')
+            set_param(hide_name_blocks(i),'ShowName','off');
         catch
             % do nothing
         end
