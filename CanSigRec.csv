@@ -1,0 +1,96 @@
+序号,"周期
+（ms）",信号名称,数据类型,取值范围,信号描述,目标模块/负责人,备注,,,,
+1,2,ActDampgReq,uint8,"255：Initial
+0: No damping
+1: Low damping
+2: Medium damping(reserve)
+3: High damping(reserve)",防抖（主动阻尼）请求指令,"TQL/李作玉
+DampCtrl/邵亚骏",VCU,,,,
+2,2,ControlMode,uint8,"255：Initial
+0: Standby
+1: 扭矩控制模式
+2: 转速控制模式
+3: 电压控制模式
+4：自动标定模式
+5: 主动放电模式
+6: Power Down
+7: 主接断开状态
+8：VCU Ready",电机控制模式请求,"SYS/王紫壹
+DEM/叶健
+",VCU,,,,
+3,2,MotorPwrMax,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机功率最大限值，单位为 Kw,"TQL/李作玉（TBD）
+DEM/叶健",VCU,,,,
+4,2,MotorPwrMin,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机功率最小限值，单位为 Kw,"TQL/李作玉（TBD）
+DEM/叶健",VCU,,,,
+5,2,SpeedMax,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机最大转速限制，单位为 Rpm,,VCU,,,,
+6,2,SpeedMin,float,,电机最小转速限制(有符号)，单位为 Rpm,,"VCU 
+2018/3/7 与李作玉讨论后，新增信号",,,, 
+7,2,SpeedReq,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机转速请求指令，单位为 Rpm,,VCU,,,,
+8,2,TorqueMax,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机最大转矩限制，单位为 Nm,,VCU,,,,
+9,,TorqueMin,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机最小转矩限制（有符号），单位为 Nm,,"VCU 
+2018/3/7 与李作玉讨论后，新增信号",,,,
+10,2,TorqueReq,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电机转矩请求指令，单位为 Nm,DEM/叶健,VCU,,,,
+11,2,VehicleGear,uint8,"255：Initial
+0: P档
+1：R档
+2: N档
+3：D档
+4：S档
+5：限制档",整车档位信息,TQL/李作玉,VCU,,,,
+12,2,VehicleSpd,float,"65535：初始值
+65534：数据异常
+others: TBD",当前车速，单位 Kph,DEM/叶健,ESC,,,,
+13,2,VehMeter,float,"65535：初始值
+65534：数据异常
+others: TBD",整车总里程数，单位 KM,,IPK,,,,
+14,2,VoltageReq,float,"TBD：初始值
+TBD：数据异常
+others: TBD",电压控制模式中，目标电压请求指令，单位为 V,,VCU,,,,
+15,2,PEPSPwrMode,uint8,"255: Initial
+0:OFF
+1:ACC
+2:ON
+4:START",PEPS（无钥匙启动）电源状态，与传统汽车IGN点火信号状态类似,,PEPS,,,,
+16,2,BMSHCurMax,float,"65535：初始值
+65534：数据异常
+others: TBD",高压系统母线允许最大电流，单位A,TQL/李作玉,BMS,,,,
+17,2,BMSHCurMin,float,"65535：初始值
+65534：数据异常
+others: TBD",高压系统母线允许最小电流，单位A,TQL/李作玉,BMS,,,,
+18,,BMSHVltMax,float,"65535：初始值
+65534：数据异常
+others: TBD",高压系统母线允许最大电压，单位V,TQL/李作玉,BMS,,,,
+19,2,BMSHVltMin,float,"65535：初始值
+65534：数据异常
+others: TBD",高压系统母线允许最小电压，单位V,TQL/李作玉,BMS,,,,
+,,WaterTemp,float,,冷却液实际温度,,"VCU 
+广汽A12",,,,
+,,DiagModeReq,uint8,,诊断模式请求,,"VCU 
+广汽A12",,,,
+,,SleepReq,uint8,,休眠请求指令,,"VCU
+车和家",,,,
+,,CrashSig,uint8,,碰撞信号,,"VCU
+车和家",,,,
+,,WriggleFlg,uint8,,蠕动标志位,,"VCU
+海马AE100",,,,
+,,ActDischg,uint8,,主动放电,,"VCU
+海马AE100",,,,
+,,BreakSig,uint8,,刹车信号,,"VCU
+海马AE100
+东南DX3",,,,
+,,SlidingSlope,uint8,,防溜坡功能,,"VCU
+东南DX3",,,,
