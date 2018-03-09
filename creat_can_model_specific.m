@@ -4,8 +4,9 @@
 %   Author       : Shibo Jiang 
 %   Version      : 0.1
 %   Time         : 2018/3/9
-%   Instructions : New file                             - 0.1
-% 
+%   Instructions : New file                                             - 0.1
+%                  Fix bugs. Use upper string to add simulink parameter 
+%                  name as a mcro.                                      - 0.2
 %------------------------------------------------------------------------------
 
 %-----Start of creat_can_model_specific----------------------------------------
@@ -152,12 +153,12 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
     % Hide factor name
     % set(tar_block_fac,'ShowName','off');
     % Set constant value
-    set(tar_block_fac,'Value',factor_name);
+    set(tar_block_fac,'Value',upper(factor_name));
     try
         factor_defined = Simulink.Parameter;
         factor_defined.DataType = 'single';
         factor_defined.Value = factor;
-        assignin('base',factor_name,factor_defined);
+        assignin('base',upper(factor_name),factor_defined);
     end
     % -------------------------------------------------------------------------
 
@@ -210,12 +211,12 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
     % Hide offset name
     % set(tar_block_offset,'ShowName','off');
     % Set constant value
-    set(tar_block_offset,'Value',offset_name);
+    set(tar_block_offset,'Value',upper(offset_name));
     try
         offset_defined = Simulink.Parameter;
         offset_defined.DataType = 'single';
         offset_defined.Value = offset;
-        assignin('base',offset_name,offset_defined);
+        assignin('base',upper(offset_name),offset_defined);
     end
     % -------------------------------------------------------------------------
 
