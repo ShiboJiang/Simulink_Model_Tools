@@ -3,12 +3,13 @@
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
 %   Version      : 0.1
-%   Time         : 2018/3/7
-%   Instructions : New file                             - 0.1
-% 
+%   Time         : 2018/3/9
+%   Instructions : New file                                        - 0.1
+%                  Complete scripts fuction,add inport block
+%                  in root level                                   - 0.2
 %------------------------------------------------------------------------------
 
-%-----Start of create_can_signal_model------------------------------------------
+%-----Start of create_can_signal_model-----------------------------------------
 function output = create_can_signal_model()
 
     paraModel = bdroot;
@@ -61,15 +62,23 @@ function CreatBlocks(name, factor, offset, dest, paraModel, index)
     % Add inport block---------------------------------------------------------
     in_dest_name = [dest,'/', name];
     add_block('simulink/Sources/In1',in_dest_name);
+    add_block('simulink/Sources/In1',[paraModel,'/',name]);
     % Move block
     target_block = find_system(paraModel,'FindAll','on','BlockType',...
                               'Inport','Name',name);
-    current_pos = get(target_block,'Position');
-    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
-    target_pos_base = current_pos;
-    target_pos_base(2) = target_pos_base(2) + (index*150);
-    target_pos_base(4) = target_pos_base(4) + (index*150);
-    set(target_block,'Position',target_pos_base);
+    for index_inport = 1 : length(target_block)
+        current_pos = get(target_block(index_inport),'Position');
+        % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+        target_pos_base = current_pos;
+        if 1 == index_inport
+            target_pos_base(2) = target_pos_base(2) + (index*30);
+            target_pos_base(4) = target_pos_base(4) + (index*30);
+        else
+            target_pos_base(2) = target_pos_base(2) + (index*150);
+            target_pos_base(4) = target_pos_base(4) + (index*150);
+        end
+        set(target_block(index_inport),'Position',target_pos_base);
+    end
     % -------------------------------------------------------------------------
 
     % Add product block--------------------------------------------------------
@@ -97,7 +106,7 @@ function CreatBlocks(name, factor, offset, dest, paraModel, index)
     set(tar_block_product,'ShowName','off');
     % -------------------------------------------------------------------------
 
-    % Add factor block--------------------------------------------------------
+    % Add factor block---------------------------------------------------------
     factor_name = [name,'_','fac'];
     factor_dest_name = [dest,'/',factor_name];
     add_block('simulink/Sources/Constant',factor_dest_name);
@@ -123,8 +132,9 @@ function CreatBlocks(name, factor, offset, dest, paraModel, index)
     % Set constant value
     set(tar_block_fac,'Value',factor_name);
     try
-        factor_defined = Simulink.Signal;
+        factor_defined = Simulink.Parameter;
         factor_defined.DataType = 'single';
+        factor_defined.Value = factor;
         assignin('base',factor_name,factor_defined);
     end
     % -------------------------------------------------------------------------
@@ -180,8 +190,9 @@ function CreatBlocks(name, factor, offset, dest, paraModel, index)
     % Set constant value
     set(tar_block_offset,'Value',offset_name);
     try
-        offset_defined = Simulink.Signal;
+        offset_defined = Simulink.Parameter;
         offset_defined.DataType = 'single';
+        offset_defined.Value = offset;
         assignin('base',offset_name,offset_defined);
     end
     % -------------------------------------------------------------------------
