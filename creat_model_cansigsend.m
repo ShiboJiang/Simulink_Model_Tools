@@ -3,9 +3,10 @@
 %   Use CanSigSend模块信号列表.xlsx 
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.1
-%   Time         : 2018/3/14
+%   Version      : 0.2
+%   Time         : 2018/3/15
 %   Instructions : New file                                   - 0.1
+%                  Fix bugs ,and add offset datatype          - 0.2
 % 
 %------------------------------------------------------------------------------
 
@@ -25,9 +26,11 @@ function output = creat_model_cansigsend()
     NAME_COLUMN   = 4;
     MEAN_COL      = 7;
     RANGE_COL     = 8; 
-    FACTOR_COLUMN = 9; 
-    OFFSET_COLUMN = 10;
     DATATYPE_COL  = 11;
+    OFFSET_DATATPYE_COL = 12;
+
+    FACTOR_COLUMN = 7; 
+    OFFSET_COLUMN = 8;
 
     % in datasheet structure
     IN_NAME_COL     = 3;
@@ -54,16 +57,21 @@ function output = creat_model_cansigsend()
             datatype = out_str_matrix{i+NUM_START_ROW, DATATYPE_COL};
             sig_mean = out_str_matrix{i+NUM_START_ROW, MEAN_COL};
             sig_range = out_str_matrix{i+NUM_START_ROW, RANGE_COL};
+            offset_datatype = out_str_matrix{i+NUM_START_ROW,...
+                                             OFFSET_DATATPYE_COL};
 
             if ~strcmp(last_name, sig_name)
                 j = j + 1;
                 % Calculate signal description
-                sig_descrip = [sig_mean;...
-                '--------------------------------------------------';...
+                sig_descrip = [sig_mean,'\n',...
+                '--------------------------------------------------','\n',...
                                sig_range];
+                sig_descrip = compose(sig_descrip);
+                sig_descrip = sig_descrip{1};
                 % Call function, create translate subsystem
                 CreatTransBlocks(sig_name, factor_value, offset_value,...
-                            model_dest, paraModel, j, datatype, sig_descrip);
+                                 model_dest, paraModel, j,...
+                                 datatype, sig_descrip, offset_datatype);
 
                 % Call function, create outport block in root level
                 outport_name = sig_name;
@@ -71,7 +79,7 @@ function output = creat_model_cansigsend()
                             paraModel, j, sig_descrip);
 
                 % Add line between translate subsystem with outport block
-                add_line(paraModel,[trans_block_name,'/',j],...
+                add_line(paraModel,[trans_block_name,'/',num2str(j+1)],...
                                    [outport_name,'/1']);
             end
             % last_name = sig_name;
@@ -108,13 +116,14 @@ end
 %-----Start of CreatTransBlocks------------------------------------------------
 function CreatTransBlocks(name, factor, offset, dest, ...
                           paraModel, index, datatype,...
-                          description)
+                          description, offset_datatype)
     % Add inport block---------------------------------------------------------
-    in_dest_name = [dest,'/', name,'_in'];
+    inport_name = [name,'_in'];
+    in_dest_name = [dest,'/', inport_name];
     add_block('simulink/Sources/In1',in_dest_name);
     % Move block
     target_block = find_system(paraModel,'FindAll','on','BlockType',...
-                              'Inport','Name',name);
+                              'Inport','Name',inport_name);
     current_pos = get(target_block,'Position');
     target_pos_base = current_pos;
     % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
@@ -178,7 +187,7 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     set(tar_block_offset,'Value',upper(offset_name));
     try
         offset_defined = Simulink.Parameter;
-        offset_defined.DataType = datatype;
+        offset_defined.DataType = offset_datatype;
         offset_defined.Value = offset;
         offset_defined.Description = [name,' 信号的偏移量'];
         assignin('base',upper(offset_name),offset_defined);
@@ -208,7 +217,7 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     set(tar_block_product,'Position',tar_pos_product);
     % Set product property
     set(tar_block_product,'ShowName','off');
-    set(tar_block_add,'OutDataTypeStr','single');
+    set(tar_block_product,'OutDataTypeStr','single');
     % -------------------------------------------------------------------------
 
     % Add factor block---------------------------------------------------------
@@ -259,17 +268,18 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     tar_pos_convert = cur_pos_convert;
     tar_pos_convert(2) = tar_pos_convert(2) + (index*150);
     tar_pos_convert(4) = tar_pos_convert(4) + (index*150);
-    % horizontal direction down to inport 20
+    % horizontal direction down to inport 10
     diff_convert_in = tar_pos_convert(2) - target_pos_base(2);
-    tar_pos_convert(2) = target_pos_base(2) + 20;
-    tar_pos_convert(4) = tar_pos_convert(4) - diff_convert_in + 20;
+    tar_pos_convert(2) = target_pos_base(2) + 10;
+    tar_pos_convert(4) = tar_pos_convert(4) - diff_convert_in + 10;
     % Vertical direction down to inport 300
     diff_convert_in = tar_pos_convert(1) - target_pos_base(1);
     tar_pos_convert(1) = target_pos_base(1) + 300;
     tar_pos_convert(3) = tar_pos_convert(3) - diff_convert_in + 300;
     set(tar_block_convert,'Position',tar_pos_convert);
     % Set convert block property
-    set(tar_pos_convert,'OutDataTypeStr',datatype);
+    set(tar_block_convert,'OutDataTypeStr',datatype);
+    set(tar_block_convert,'ShowName','off');
     % -------------------------------------------------------------------------
 
     % Add out block------------------------------------------------------------
@@ -288,10 +298,10 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     diff_out_in = tar_pos_out(2) - target_pos_base(2);
     tar_pos_out(2) = target_pos_base(2) + 20;
     tar_pos_out(4) = tar_pos_out(4) - diff_out_in + 20;
-    % Vertical direction down to inport 300
+    % Vertical direction down to inport 450
     diff_out_in = tar_pos_out(1) - target_pos_base(1);
-    tar_pos_out(1) = target_pos_base(1) + 400;
-    tar_pos_out(3) = tar_pos_out(3) - diff_out_in + 400;
+    tar_pos_out(1) = target_pos_base(1) + 450;
+    tar_pos_out(3) = tar_pos_out(3) - diff_out_in + 450;
     set(tar_block_out,'Position',tar_pos_out);
     % Hide product name
     % set(tar_block_out,'ShowName','off');
@@ -302,11 +312,11 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     % -------------------------------------------------------------------------
 
     % Add lines----------------------------------------------------------------
-    add_line(dest,[name,'/1'],[product_name,'/1']);
-    add_line(dest,[factor_name,'/1'],[product_name,'/2']);
-    add_line(dest,[product_name,'/1'],[add_name,'/1']);
+    add_line(dest,[inport_name,'/1'],[add_name,'/1']);
     add_line(dest,[offset_name,'/1'],[add_name,'/2']);
-    add_line(dest,[add_name,'/1'],[convert_name,'/1']);
+    add_line(dest,[add_name,'/1'],[product_name,'/1']);
+    add_line(dest,[factor_name,'/1'],[product_name,'/2']);
+    add_line(dest,[product_name,'/1'],[convert_name,'/1']);
     add_line(dest,[convert_name,'/1'],[out_name,'/1']);
     % -------------------------------------------------------------------------
 end
@@ -317,8 +327,8 @@ function CreatOutports(name, datatype, paraModel, index, description)
     out_dest_name = [paraModel,'/', name];
     add_block('simulink/Sinks/Out1',out_dest_name);
     % Move block
-    target_block = find_system(paraModel,'FindAll','on','BlockType',...
-                              'Outport','Name',name);
+    target_block = find_system(paraModel,'SearchDepth','1','FindAll',...
+                              'on','BlockType','Outport','Name',name);
     current_pos = get(target_block,'Position');
     % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
     target_pos_base = current_pos;
