@@ -7,6 +7,7 @@
 %   Time         : 2018/3/15
 %   Instructions : New file                                   - 0.1
 %                  Fix bugs ,and add offset datatype          - 0.2
+%                  Add inport block description.              - 0.3
 % 
 %------------------------------------------------------------------------------
 
@@ -35,7 +36,8 @@ function output = creat_model_cansigsend()
     % in datasheet structure
     IN_NAME_COL     = 3;
     IN_DATATYPE_COL = 4;
-    IN_DESCRIP_COL  = 5;
+    IN_RANGE_COL    = 5;
+    IN_DESCRIP_COL  = 6;
 
     % Creat translate subsystem
     % Calculate loop times
@@ -99,8 +101,14 @@ function output = creat_model_cansigsend()
         inport_datatpye = in_str_matrix{i + NUM_START_ROW,...
                                   IN_DATATYPE_COL};
 
-        inport_descrip = in_str_matrix{i + NUM_START_ROW,...
+        inport_descrip_1 = in_str_matrix{i + NUM_START_ROW,...
                                   IN_DESCRIP_COL};
+        inport_descrip_2 = in_str_matrix{i + NUM_START_ROW,...
+                                  IN_RANGE_COL};
+        inport_descrip = compose([inport_descrip_1,'\n',...
+        '--------------------------------------------------','\n',...
+                                  inport_descrip_2]);
+        inport_descrip = inport_descrip{1};
 
         if ~strcmp(last_name, inport_name)
             j = j + 1;
