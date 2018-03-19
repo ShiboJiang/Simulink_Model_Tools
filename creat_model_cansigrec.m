@@ -2,29 +2,33 @@
 %   Simulink scrip for creating can signal out/in model. Use specify excel.
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.1
-%   Time         : 2018/3/9
-%   Instructions : New file                                             - 0.1
-%                  Fix bugs. Use upper string to add simulink parameter 
-%                  name as a mcro.                                      - 0.2
+%   Version      : 0.2
+%   Time         : 2018/3/16
+%   Instructions : New file                                           - 0.1
+%                  Add port description,add datatype convert          - 0.2
+% 
 %------------------------------------------------------------------------------
 
-%-----Start of creat_can_model_specific----------------------------------------
-function output = creat_can_model_specific()
+%-----Start of creat_model_cansigrec-------------------------------------------
+function output = creat_model_cansigrec()
 
     paraModel = bdroot;
 
     % Define file name
-    filename = 'CanSigRec_modify.xlsx';
+    filename = 'CanSigRec模块信号列表.xlsx';
     % Import excel file's data
     [number_matrix, str_matrix] = xlsread(filename, 'in');
-    [out_num_matrix,out_str_matrix] = xlsread(filename, 'out');
+    
     NUM_START_ROW = 1;
     STR_START_ROW = 2;
     NAME_COLUMN = 4;
+    MEAN_COL = 7;
+    RANGE_COL = 8;
+    OFFSET_DATATPYE_COL = 11;
+    SIG_DATATYPER_COL = 12;
+    OUT_DATATYPE_COL = 13;
     
     FACTOR_COLUMN = 7; 
-    
     OFFSET_COLUMN = 8;
 
     % Calculate loop times
@@ -33,21 +37,47 @@ function output = creat_can_model_specific()
         % Do nothing
     else
         % Creat new subsystem
-        model_dest = [paraModel,'/SigTranslate']; 
+        trans_block_name = 'SigTranslate';
+        model_dest = [paraModel,'/',trans_block_name]; 
         add_block('simulink/Ports & Subsystems/Subsystem', model_dest);
         % Creat translate model
         j = 0;
         last_name = '';
         for i = 1:length_str
-            inport_name = str_matrix{i+NUM_START_ROW, NAME_COLUMN};
+            sig_name = str_matrix{i+NUM_START_ROW, NAME_COLUMN};
             factor_value = number_matrix(i, FACTOR_COLUMN);
             offset_value = number_matrix(i, OFFSET_COLUMN);
+            
+            sig_mean = str_matrix{i+NUM_START_ROW, MEAN_COL};
+            sig_range = str_matrix{i+NUM_START_ROW, RANGE_COL};
+            offset_datatype = str_matrix{i+NUM_START_ROW,...
+                                             OFFSET_DATATPYE_COL};
+            sig_datatype = str_matrix{i+NUM_START_ROW, SIG_DATATYPER_COL};
+            out_datatype = str_matrix{i+NUM_START_ROW, OUT_DATATYPE_COL};
 
-            if ~strcmp(last_name, inport_name)
+
+            if ~strcmp(last_name, sig_name)
                 j = j + 1;
+                % Calculate signal description
+                sig_descrip = [sig_mean,'\n',...
+                '--------------------------------------------------','\n',...
+                               sig_range];
+                sig_descrip = compose(sig_descrip);
+                sig_descrip = sig_descrip{1};
                 % Call function
-                CreatTransBlocks(inport_name, factor_value, offset_value,...
-                            model_dest, paraModel, j);
+                CreatTransBlocks(sig_name, factor_value, offset_value,...
+                                 model_dest, paraModel, j,...
+                                 out_datatype, sig_descrip,...
+                                 offset_datatype);
+
+                % Call function, create outport block in root level
+                inport_name = sig_name;
+                CreatInports(inport_name, sig_datatype,...
+                            paraModel, j, sig_descrip);
+
+                % Add line between translate inport block with subsystem
+                add_line(paraModel,[inport_name,'/1'],...
+                                   [trans_block_name,'/',num2str(j+1)]);
             end
             % last_name = inport_name;
         end
@@ -57,9 +87,12 @@ function output = creat_can_model_specific()
     end
 
     % Creat out port
-    OUTPORT_NAME_COLUMN = 3;
+    [out_num_matrix,out_str_matrix] = xlsread(filename, 'out');
+    OUTPORT_NAME_COLUMN     = 3;
     OUTPORT_DATATYPE_COLUMN = 4;
-    out_model_dest = paraModel;
+    OUTPORT_RANGE_COL       = 5;
+    OUTPORT_MEAN_COL        = 6;
+
     j = 0;
     last_name = '';
     for i = 1:(length(out_str_matrix(:,1)) - 1)
@@ -67,41 +100,44 @@ function output = creat_can_model_specific()
                                   OUTPORT_NAME_COLUMN};
         outport_datatpye = out_str_matrix{i + NUM_START_ROW,...
                                   OUTPORT_DATATYPE_COLUMN};
+        outport_descrip_1 = out_str_matrix{i + NUM_START_ROW,...
+                                  OUTPORT_MEAN_COL};
+        outport_descrip_2 = out_str_matrix{i + NUM_START_ROW,...
+                                  OUTPORT_RANGE_COL};
+        outport_descrip = compose([outport_descrip_1,'\n',...
+        '--------------------------------------------------','\n',...
+                                  outport_descrip_2]);
+        outport_descrip = outport_descrip{1};
 
         if ~strcmp(last_name, outport_name)
             j = j + 1;
             % Call function
             CreatOutports(outport_name, outport_datatpye,...
-                            paraModel, j);
+                          paraModel, j, outport_descrip);
         end
         
     end
     
 end
-%-----End of creat_can_signal_model--------------------------------------------
+%-----End of creat_model_cansigrec---------------------------------------------
 
 %-----Start of CreatBlocks-----------------------------------------------------
-function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
+function CreatTransBlocks(name, factor, offset, dest,...
+                          paraModel, index, out_datatype,...
+                          description, offset_datatype)
     % Add inport block---------------------------------------------------------
     in_dest_name = [dest,'/', name];
     add_block('simulink/Sources/In1',in_dest_name);
-    add_block('simulink/Sources/In1',[paraModel,'/',name]);
     % Move block
-    target_block = find_system(paraModel,'FindAll','on','BlockType',...
-                              'Inport','Name',name);
-    for index_inport = 1 : length(target_block)
-        current_pos = get(target_block(index_inport),'Position');
-        % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
-        target_pos_base = current_pos;
-        if 1 == index_inport
-            target_pos_base(2) = target_pos_base(2) + (index*30);
-            target_pos_base(4) = target_pos_base(4) + (index*30);
-        else
-            target_pos_base(2) = target_pos_base(2) + (index*150);
-            target_pos_base(4) = target_pos_base(4) + (index*150);
-        end
-        set(target_block(index_inport),'Position',target_pos_base);
-    end
+    target_block = find_system(paraModel,'SearchDepth','2','FindAll',...
+                               'on','BlockType','Inport','Name',name);
+    current_pos = get(target_block,'Position');
+    target_pos_base = current_pos;
+    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+    target_pos_base(2) = target_pos_base(2) + (index*150);
+    target_pos_base(4) = target_pos_base(4) + (index*150);
+    set(target_block,'Position',target_pos_base);
+    set(target_block,'Description', description);
     % -------------------------------------------------------------------------
 
     % Add product block--------------------------------------------------------
@@ -127,6 +163,8 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
     set(tar_block_product,'Position',tar_pos_product);
     % Hide product name
     set(tar_block_product,'ShowName','off');
+    % Set block property
+    set(tar_block_product,'OutDataTypeStr','single');
     % -------------------------------------------------------------------------
 
     % Add factor block---------------------------------------------------------
@@ -158,6 +196,7 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
         factor_defined = Simulink.Parameter;
         factor_defined.DataType = 'single';
         factor_defined.Value = factor;
+        factor_defined.Description = [name,' 信号的放大系数'];
         assignin('base',upper(factor_name),factor_defined);
     end
     % -------------------------------------------------------------------------
@@ -185,6 +224,8 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
     set(tar_block_add,'Position',tar_pos_add);
     % Hide product name
     set(tar_block_add,'ShowName','off');
+    % Set block property
+    set(tar_block_add,'OutDataTypeStr',out_datatype)
     % -------------------------------------------------------------------------
 
     % Add offset block---------------------------------------------------------
@@ -214,8 +255,9 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
     set(tar_block_offset,'Value',upper(offset_name));
     try
         offset_defined = Simulink.Parameter;
-        offset_defined.DataType = 'single';
+        offset_defined.DataType = offset_datatype;
         offset_defined.Value = offset;
+        offset_defined.Description = [name,' 信号的偏移量'];
         assignin('base',upper(offset_name),offset_defined);
     end
     % -------------------------------------------------------------------------
@@ -243,6 +285,8 @@ function CreatTransBlocks(name, factor, offset, dest, paraModel, index)
     set(tar_block_out,'Position',tar_pos_out);
     % Hide product name
     % set(tar_block_out,'ShowName','off');
+    % Set block property
+    set(tar_block_out,'OutDataTypeStr',out_datatype);
     % -------------------------------------------------------------------------
 
     % Add lines----------------------------------------------------------------
@@ -256,13 +300,13 @@ end
 %-----End of CreatBlocks-------------------------------------------------------
 
 %-----Start of CreatBlocks-----------------------------------------------------
-function CreatOutports(name, datatype, paraModel, index)
+function CreatOutports(name, datatype, paraModel, index, description)
 % Add inport block---------------------------------------------------------
     out_dest_name = [paraModel,'/', name];
     add_block('simulink/Sinks/Out1',out_dest_name);
     % Move block
-    target_block = find_system(paraModel,'FindAll','on','BlockType',...
-                              'Outport','Name',name);
+    target_block = find_system(paraModel,'SearchDepth','1','FindAll',...
+                               'on','BlockType','Outport','Name',name);
     current_pos = get(target_block,'Position');
     % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
     target_pos_base = current_pos;
@@ -274,6 +318,28 @@ function CreatOutports(name, datatype, paraModel, index)
 
     set(target_block,'Position',target_pos_base);
     set(target_block,'OutDataTypeStr',datatype);
-    
+    set(target_block,'Description', description);
 end
 %-----End of CreatBlocks-------------------------------------------------------
+
+%-----Start of CreatInports----------------------------------------------------
+function CreatInports(name, datatype, paraModel, index, description)
+    dest_name = [paraModel,'/', name];
+    add_block('simulink/Sources/In1',dest_name);
+    % Move block
+    target_block = find_system(paraModel,'SearchDepth','1','FindAll',...
+                               'on','BlockType','Inport','Name',name);
+    current_pos = get(target_block,'Position');
+    % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
+    target_pos_base = current_pos;
+    target_pos_base(2) = target_pos_base(2) + (index*30);
+    target_pos_base(4) = target_pos_base(4) + (index*30);
+    % Move x to 300
+    target_pos_base(1) = target_pos_base(1) - 200;
+    target_pos_base(3) = target_pos_base(3) - 200;
+
+    set(target_block,'Position',target_pos_base);
+    set(target_block,'OutDataTypeStr',datatype);
+    set(target_block,'Description', description);
+end
+%-----End of CreatInports------------------------------------------------------
