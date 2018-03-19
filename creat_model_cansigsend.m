@@ -352,13 +352,13 @@ function CreatOutports(name, datatype, paraModel, index, description)
 end
 %-----End of CreatOutports-----------------------------------------------------
 
-%-----Start of CreatInports-----------------------------------------------------
+%-----Start of CreatInports----------------------------------------------------
 function CreatInports(name, datatype, paraModel, index, description)
     dest_name = [paraModel,'/', name];
     add_block('simulink/Sources/In1',dest_name);
     % Move block
-    target_block = find_system(paraModel,'FindAll','on','BlockType',...
-                              'Inport','Name',name);
+    target_block = find_system(paraModel,'SearchDepth','1','FindAll',...
+                               'on','BlockType','Inport','Name',name);
     current_pos = get(target_block,'Position');
     % Y down 150 ,Position[a,b,c,d], add b,d sametime can move in Y.
     target_pos_base = current_pos;
@@ -372,4 +372,4 @@ function CreatInports(name, datatype, paraModel, index, description)
     set(target_block,'OutDataTypeStr',datatype);
     set(target_block,'Description', description);
 end
-%-----End of CreatInports-------------------------------------------------------
+%-----End of CreatInports------------------------------------------------------
