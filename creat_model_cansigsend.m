@@ -3,11 +3,12 @@
 %   Use CanSigSend模块信号列表.xlsx 
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
-%   Version      : 0.2
-%   Time         : 2018/3/15
-%   Instructions : New file                                   - 0.1
-%                  Fix bugs ,and add offset datatype          - 0.2
-%                  Add inport block description.              - 0.3
+%   Version      : 0.4
+%   Time         : 2018/3/27
+%   Instructions : New file                                           - 0.1
+%                  Fix bugs ,and add offset datatype                  - 0.2
+%                  Add inport block description.                      - 0.3
+%                  Set block Integer rounding mode to Simplest        - 0.4
 % 
 %------------------------------------------------------------------------------
 
@@ -166,6 +167,7 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     % Set add block property
     set(tar_block_add,'Inputs','+-');
     set(tar_block_add,'OutDataTypeStr','single');
+    set(tar_block_add,'RndMeth','Simplest');
     % -------------------------------------------------------------------------
 
     % Add offset block---------------------------------------------------------
@@ -226,6 +228,7 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     % Set product property
     set(tar_block_product,'ShowName','off');
     set(tar_block_product,'OutDataTypeStr','single');
+    set(tar_block_product,'RndMeth','Simplest');
     % -------------------------------------------------------------------------
 
     % Add factor block---------------------------------------------------------
@@ -288,6 +291,7 @@ function CreatTransBlocks(name, factor, offset, dest, ...
     % Set convert block property
     set(tar_block_convert,'OutDataTypeStr',datatype);
     set(tar_block_convert,'ShowName','off');
+    set(tar_block_convert,'RndMeth','Simplest');
     % -------------------------------------------------------------------------
 
     % Add out block------------------------------------------------------------
