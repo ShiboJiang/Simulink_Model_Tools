@@ -2,8 +2,8 @@
 %   Simulink scrip for ERT configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2018/1/8
-%   Version: 1.0
+%   Shibo Jiang    2018/4/25
+%   Version: 1.1
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -430,7 +430,7 @@ function Configurate = ERT_configuration()
     set_param(paraModel, 'RTWCAPISignals', 'off');   % Generate C API for signals
     set_param(paraModel, 'RTWCAPIStates', 'off');   % Generate C API for states
     set_param(paraModel, 'RateGroupingCode', 'on');   % RateGroupingCode
-    set_param(paraModel, 'ReplacementTypes', struct('double','float64','single','float32','int32','sint32','int16','sint16','int8','sint8','uint32','uint32','uint16','uint16','uint8','uint8','boolean','boolean','int','','uint','','char',''));   % Data type names
+    set_param(paraModel, 'ReplacementTypes', struct('double','','single','','int32','','int16','','int8','','uint32','','uint16','','uint8','','boolean','','int','','uint','','char',''));   % Data type names
     set_param(paraModel, 'SignalDisplayLevel', 10);   % Signal display level
     set_param(paraModel, 'SuppressUnreachableDefaultCases', 'off');   % Suppress generation of default cases for Stateflow switch statements if unreachable
     set_param(paraModel, 'TargetOS', 'BareBoardExample');   % Target operating system

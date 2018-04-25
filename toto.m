@@ -22,7 +22,7 @@ function varargout = toto(varargin)
 
 % Edit the above text to modify the response to help toto
 
-% Last Modified by GUIDE v2.5 23-Nov-2017 23:18:12
+% Last Modified by GUIDE v2.5 18-Apr-2018 16:40:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -229,3 +229,11 @@ function change_parameter_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 out = change_parameter()
+
+
+% --- Executes on button press in rename_line.
+function rename_line_Callback(hObject, eventdata, handles)
+% hObject    handle to rename_line (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+out = rename_sig_to_port()

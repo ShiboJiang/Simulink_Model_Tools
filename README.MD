@@ -105,6 +105,20 @@ MinMax,UnitDelay,Sqrt,Merge,Product,Logic,RelationalOperator,Switch,MultiPortSwi
 
 ![输入图片说明](https://gitee.com/uploads/images/2017/1124/223442_14c69f68_1424277.png "深度截图_选择区域_20171124223426.png")
 
+命名规范表格:
+
+后缀|  数据类型
+----|-------------
+_u8 | uint8
+_u16 | uint16
+_u32 | uint32
+_f32 | single
+_f64 | double
+_s8 | int8
+_s16 | int16
+_s32 | int32
+_bl | boolean
+
 ### 2.9 勾选resolve
 
 在有名字的信号线上勾选`Signal name must resolve to Simulink signal object`选项。
@@ -143,22 +157,36 @@ MinMax,UnitDelay,Sqrt,Merge,Product,Logic,RelationalOperator,Switch,MultiPortSwi
 
 ### 2.18 变量列表
 
-创建[model name]_list.xlsx的表格
-将当前模型所关联的数据字典中，所有变量名称 和 所关联的数据字典名称，写入名为dict的工作表中。
-将当前模型信号线上定义的名字，且该名字没有在数据字典中进行定义，写入only_line工作表中。
-将当前模型所有普通一维变量的名称，源数据字典，数据类型，数值，放入simu_parameter工作表中。
-将当前模型所有查表变量（最高2维）的名称，源数据字典，数据类型，表格维度，数值，放入simu_table工作表中。
-将当前模型所有state flow 变量 名称，范围，数据类型，放入sf_parameter工作表中。
+把数据字典和模型一些信息转成Excel表格，创建[model name]_list.xlsx的表格
+
+- 将当前模型所关联的数据字典中，所有变量名称 和 所关联的数据字典名称，写入名为dict的工作表中。
+- 将当前模型信号线上定义的名字，且该名字没有在数据字典中进行定义，写入only_line工作表中。
+- 将当前模型所有普通一维变量的名称，源数据字典，数据类型，数值，放入simu_parameter工作表中。
+- 将当前模型所有查表变量（最高2维）的名称，源数据字典，数据类型，表格维度，数值，放入simu_table工作表中。
+- 将当前模型所有state flow 变量 名称，范围，数据类型，放入sf_parameter工作表中。
+
 自动生成的Excel如下图所示：
-![2_18_001.jpg](2_18_001.jpg)
+![2_18_001.jpg](http://p6ij1j575.bkt.clouddn.com/%E6%95%B0%E6%8D%AE%E5%AD%97%E5%85%B8%E8%BD%ACExcel.PNG)
+
+注意，如果使用WPS，则需要开启wps表格的宏定义，并将matlab中的Excel link添加到宏定义中，相关教程如下：
+- [Excel 安装 Excel link][ExcelLink]
+- [Wps 安装 Excel link][WpsLink]
 
 ### 2.19 修改变量
 
-读取当前工作目录下`[model name]_list.xlsx`文件，并读取其中dict、only_line、simu_parameter、simu_table、sf_parameter 五个工作表，并根据表中的命名情况和数据赋值情况 进行对模型中相应的名称进行修改。
-需注意，修改支持 重命名 和 新添加变量，为了进行保护，不支持删除原数据字典中的变量，如若删除需要到数据字典界面进行操作。
-模型中可进行修改的模块包括：数据字典，信号线，输入输出端口，Constant模块，查表模块。
-注意，如果当前工作目录下没有[model name]_list.xlsx这个文件，或格式不正确，则运行此条命令会报错，此时需要使用`变量列表`按钮生成一份标准的变量列表后，才能使用此按键。
+根据Excel表格中的信息对模型和数据字典进行修改
+
+- 读取当前工作目录下`[model name]_list.xlsx`文件
+- 并读取其中dict、only_line、simu_parameter、simu_table、sf_parameter 五个工作表，并根据表中的命名情况和数据赋值情况 进行对模型中相应的名称进行修改。
+- 需注意，修改支持 重命名 和 新添加变量，为了进行保护，不支持删除原数据字典中的变量，如若删除需要到数据字典界面进行操作。
+- 模型中可进行修改的模块包括：数据字典，信号线，输入输出端口，Constant模块，查表模块。
+- 注意，如果当前工作目录下没有[model name]_list.xlsx这个文件，或格式不正确，则运行此条命令会报错，此时需要使用`变量列表`按钮生成一份标准的变量列表后，才能使用此按键。
 
 ### 2.20 SF变量类型自动
 
 读取当前模型state flow中变量，并将这些变量数据类型设为 `[Inherit: Same as Simulink]`。
+
+--------------------------------------
+
+[ExcelLink]:https://blog.csdn.net/zhangkaihang/article/details/7519783
+[WpsLink]:https://blog.csdn.net/u011511601/article/details/64921268
