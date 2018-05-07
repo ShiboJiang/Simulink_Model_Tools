@@ -34,27 +34,9 @@
 
 
 ---------------------------------
-|版本 |修改内容                                                                   |时间      |作者  |
-|----|------                                                                     |----      |---- |
-|0.1 |创建文档，每项配置进行官方参考说明文档链接并对所选配置进行简单解释               |2017/7/3 |姜世博|
-|0.2 |根据hisl（高完整性系统建模）文档进行配置项优化，并将hisl相关规则进行文档链接。开始编写自动配置的脚本        |2017/7/27 |姜世博|
-|0.3 |根据model advisor中DO-178C/DO-331（航空机载软件建模规范）相关配置项进行优化，根据JMAAB中部分规则进行配置优化，修改脚本，增加不同模型兼容性  |2017/8/4  |姜世博|
-|0.4 |将 有关数据优化成位域 的选项设为默认配置（即为不将数据优化成位域存储，位操作执行效率没有整数数据高）；将`6.9模型引用入口传参`设为 值的形参传入，上一版本设为地址传入；|2017/8/31 |姜世博|
-|0.5 |标记出与 默认模板（绿色）和之前项目使用的模板（黄色）不同的配置项，并进行详细说明和生成代码对比 ；修改3.1.2项选项，由启用设为不启用； |2017/9/4 |姜世博  |
-|0.6 |修正3.0.7、3.0.8两个配置项的错误描述 |2017/9/5 |姜世博  |
-|0.7 |修改文档说明，适配matlab 2017a，与默认设置不同使用<font color = orange>橙色字体</font>进行标识 |2017/9/6 |姜世博   |
-|0.8|根据会议评审进行配置项确认和修改，修改了如下几项:`3.0.2 Use division for fixed-point net slope computation`; `3.0.8 Remove code from floating-point to integer conversions that wraps out-of-range values`; `8.2.10 Requirements in block comments`; `8.9.7 File packaging format`; `8.12.2 Maximum SHORT-NAME length` ,这几项配置改为默认配置，并适配脚本 |2017/9/8  |姜世博 |
-|0.9|将`3.0.2 Use division for fixed-point net slope computation`,`Generate shared constants`两个选项改为符合MISRA-C规则，将`8.9.7 File packaging format`选项改为`Compact`|2017/9/23 | 姜世博 |
-|0.9.1|将模型仿真运行时间，从inf改为默认10s     |2017/9/25  |姜世博 |
-|0.9.2|将`Check model before generating code`改为off；将`Diagnostics`中，除了MISRA-C，ISO26262，MAAB规则要求的检查项外，其它诊断从error改为warning    |2017/9/27 |姜世博 |
-|0.9.3|将`Diagnostics`中，除了MISRA-C，ISO26262，MAAB规则要求的检查项外，其它诊断从warning 设为默认选项，具体修改为`4.1.2 Multitask rate transition`设为error，`4.1.4 Multitask conditionally executed subsystem`设为error，`4.1.7 Sample hit time adjusting`设为none，`4.4.10 Invalid function-call connection`设为error，`4.4.11 Context-dependent inputs`设为error，`4.5.2 Block behavior depends on frame status of signal`设为error，`4.5.3 SimState object from earlier release`设为error，`4.7.2 Unexpected backtracking`设为error，`4.7.4 No unconditional default transitions`设为error，`4.7.8 Read-before-write to output in Moore chart`设为error|2017/10/10 |姜世博 |
-|0.9.4|将`4.4.7 Bus signal treated as vector`诊断设为`error`，将菜单栏`Display > Signals & Ports >`其中`Wide Nonscalar Lines`、`Viewer Indicator`、`Test point & Logging Indicator`、`Linearization Indicators` 这四项进行勾选显示 |2017/10/13|姜世博
-|0.9.5|将`4.2.4 Saturate on overflow`设为`error`; 将菜单栏`Display > Library Links`选项设为`none`; 增加模型默认字体配置，字体设为`Arial`，字号设为`10`|2017/10/25|姜世博|
-|0.9.6|arxml文件导入后各Runnable可能设为不同采样时间，为满足此类要求，将`1.3 Fixed-step size`设为`auto`; 将`4.2.7 Simulation range checking`设为`warning`; | 2017/11/2 | 姜世博|
-|0.9.7|修改代码生成时，数据类型的标记符号，改为`'float64','float32','sint32','sint16','sint8','uint32','uint16','uint8','boolean'`；修改 4.6 `Automatic solver parameter selection`诊断选项，改为`None`|2017/11/29|姜世博|
-|0.9.7.1|紧急修复上一版本中 无法将 Autosar 目标配置成 自定义数据类型 的bug，其它无变动|2017/12/1| 姜世博|
-|0.9.8|1. 将ERT目标配置`1.3 Fixed-step size`设为`0.002`，如果和当前模型不符需要自行修改；2. 将`4.2.15 Multitask data store`诊断项设为`error`|2017/12/8| 姜世博 |
-|0.9.9 |为了满足ISO26262检测，将 `4.2.7 Simulation range checking` 设为`error`|2017/12/19|姜世博|
+- 根据hisl（高完整性系统建模）文档进行配置项优化，并将hisl相关规则进行文档链接。开始编写自动配置的脚本
+- 根据model advisor中DO-178C/DO-331（航空机载软件建模规范）相关配置项进行优化，根据JMAAB中部分规则进行配置优化，修改脚本，增加不同模型兼容性
+- Creat By Tomato
 
 
 # 1. Solver 求解器的设定
