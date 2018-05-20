@@ -1,5 +1,5 @@
 %------------------------------------------------------------------------------
-%   Simulink scrip for rename parameters and change parameter's value
+%   Simulink scrip for rename parameters and change parameter's value.
 %   MATLAB       : R2017a
 %   Author       : Shibo Jiang 
 %   Version      : 0.7
@@ -11,6 +11,7 @@
 %                  Add state flow parameter changed   
 %                  Add storge calss change                       - 0.6
 %                  Support goto & from block                     - 0.7
+%                  Support under masked block changing name      - 0.8
 %------------------------------------------------------------------------------
 function output = change_parameter()
 
@@ -87,31 +88,47 @@ function output = change_parameter()
                 par_dict = find(dic_entry, 'Name', temp_old);
                 % Find the parameter name in signal line
                 par_signal = find_system(paraModel,'FindAll','on',...
-                                     'type','line', 'Name',temp_old);
-                % Find the parameter name in constant block
-                par_const = find_system(paraModel,'FindAll','on',...
-                          'BlockType', 'Constant','Value', temp_old);
+                'LookUnderMasks','on','FollowLinks','on','type','line', 'Name',temp_old);
+                
+                % % Find the parameter name in constant block
+                % par_const = find_system(paraModel,'FindAll','on',...
+                % 'LookUnderMasks','on','FollowLinks','on','BlockType', 'Constant','Value', temp_old);
+
+                % Find the paremeter name in constant which include dict constant
+                par_const = [];
+                dict_const_block =  find_system(paraModel,'FindAll','on',...
+                'LookUnderMasks','on','FollowLinks','on','BlockType', 'Constant');
+                if ~isempty(dict_const_block)
+                    par_const = zeros(1,length(dict_const_block));
+                    for temp_index = 1:length(dict_const_block)
+                        temp_const_name = get(dict_const_block(temp_index),'Value');
+                        if strcmp(temp_old, temp_const_name)
+                            par_const(temp_index) = dict_const_block(temp_index);
+                            break;
+                        end
+                    end
+                end
                 % Find the parameter name in table block
                 par_nd_table = find_system(paraModel,'FindAll','on',...
-                          'BlockType', 'Lookup_n-D','Table', temp_old);
-                par_direct_table = find_system(paraModel,'FindAll',...
-                                 'on','BlockType','LookupNDDirect',...
+                'LookUnderMasks','on','FollowLinks','on','BlockType', 'Lookup_n-D','Table', temp_old);
+                par_direct_table = find_system(paraModel,'FindAll','on',...
+                'LookUnderMasks','on','FollowLinks','on','BlockType','LookupNDDirect',...
                                                    'Table', temp_old);
                 % Find the parameter name in port block
                 par_inport = find_system(paraModel,'FindAll','on',...
-                             'BlockType', 'Inport','Name', temp_old);
+                'LookUnderMasks','on','FollowLinks','on','BlockType', 'Inport','Name', temp_old);
                 par_outport = find_system(paraModel,'FindAll','on',...
-                             'BlockType', 'Outport','Name', temp_old);
+                'LookUnderMasks','on','FollowLinks','on','BlockType', 'Outport','Name', temp_old);
                 % Find the parameter name in stateflow
                 sf = sfroot;
                 par_sf_data = sf.find('-isa','Stateflow.Data',...
                                                'Name', temp_old);
                 % Find the goto block
                 par_goto = find_system(paraModel,'FindAll','on',...
-                             'BlockType', 'Goto','GotoTag', temp_old);
+                'LookUnderMasks','on','FollowLinks','on','BlockType', 'Goto','GotoTag', temp_old);
                 % Find the from block
                 par_from = find_system(paraModel,'FindAll','on',...
-                             'BlockType', 'From','GotoTag', temp_old);
+                'LookUnderMasks','on','FollowLinks','on','BlockType', 'From','GotoTag', temp_old);
                 
 
                 % Set new name
