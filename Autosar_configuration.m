@@ -2,8 +2,8 @@
 %   Simulink scrip for Autosar configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2018/4/25
-%   Version: 1.1
+%   Shibo Jiang    2018/8/29
+%   Version: 1.2
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -110,7 +110,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'ZeroExternalMemoryAtStartup', 'off');   % Remove root level I/O zero initialization
     set_param(paraModel, 'InitFltsAndDblsToZero', 'off');   % Use memset to initialize floats and doubles to 0.0
     set_param(paraModel, 'ZeroInternalMemoryAtStartup', 'on');   % Remove internal data zero initialization
-    set_param(paraModel, 'EfficientFloat2IntCast', 'off');   % Remove code from floating-point to integer conversions that wraps out-of-range values
+    set_param(paraModel, 'EfficientFloat2IntCast', 'on');   % Remove code from floating-point to integer conversions that wraps out-of-range values
     set_param(paraModel, 'EfficientMapNaN2IntZero', 'off');   % Remove code from floating-point to integer conversions with saturation that maps NaN to zero
     set_param(paraModel, 'NoFixptDivByZeroProtection', 'off');   % Remove code that protects against division arithmetic exceptions
     set_param(paraModel, 'SimCompilerOptimization', 'off');   % Compiler optimization level
@@ -261,15 +261,15 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'SimGenImportedTypeDefs', 'off');   % Generate typedefs for imported bus and enumeration types
     set_param(paraModel, 'SimBuildMode', 'sf_incremental_build');   % Simulation target build mode
     set_param(paraModel, 'SimReservedNameArray', []);   % Reserved names
-    set_param(paraModel, 'SimParseCustomCode', 'off');   % Parse custom code symbols
-    set_param(paraModel, 'SimCustomSourceCode', '');   % Source file
-    set_param(paraModel, 'SimCustomHeaderCode', '');   % Header file
-    set_param(paraModel, 'SimCustomInitializer', '');   % Initialize function
-    set_param(paraModel, 'SimCustomTerminator', '');   % Terminate function
-    set_param(paraModel, 'SimUserIncludeDirs', '');   % Include directories
-    set_param(paraModel, 'SimUserSources', '');   % Source files
-    set_param(paraModel, 'SimUserLibraries', '');   % Libraries
-    set_param(paraModel, 'SimUserDefines', '');   % Defines
+    % set_param(paraModel, 'SimParseCustomCode', 'off');   % Parse custom code symbols
+    % set_param(paraModel, 'SimCustomSourceCode', '');   % Source file
+    % set_param(paraModel, 'SimCustomHeaderCode', '');   % Header file
+    % set_param(paraModel, 'SimCustomInitializer', '');   % Initialize function
+    % set_param(paraModel, 'SimCustomTerminator', '');   % Terminate function
+    % set_param(paraModel, 'SimUserIncludeDirs', '');   % Include directories
+    % set_param(paraModel, 'SimUserSources', '');   % Source files
+    % set_param(paraModel, 'SimUserLibraries', '');   % Libraries
+    % set_param(paraModel, 'SimUserDefines', '');   % Defines
     set_param(paraModel, 'SFSimEnableDebug', 'off');   % Allow setting breakpoints during simulation
 
     % Code Generation
@@ -290,16 +290,16 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'TLCDebug', 'off');   % Start TLC debugger when generating code
     set_param(paraModel, 'TLCCoverage', 'off');   % Start TLC coverage when generating code
     set_param(paraModel, 'TLCAssert', 'off');   % Enable TLC assertion
-    set_param(paraModel, 'RTWUseSimCustomCode', 'off');   % Use the same custom code settings as Simulation Target
-    set_param(paraModel, 'CustomSourceCode', '');   % Source file
-    set_param(paraModel, 'CustomHeaderCode', '');   % Header file
-    set_param(paraModel, 'CustomInclude', '');   % Include directories
-    set_param(paraModel, 'CustomSource', '');   % Source files
-    set_param(paraModel, 'CustomLibrary', '');   % Libraries
-    set_param(paraModel, 'CustomLAPACKCallback', '');   % Custom LAPACK library callback
-    set_param(paraModel, 'CustomDefine', '');   % Defines
-    set_param(paraModel, 'CustomInitializer', '');   % Initialize function
-    set_param(paraModel, 'CustomTerminator', '');   % Terminate function
+    % set_param(paraModel, 'RTWUseSimCustomCode', 'off');   % Use the same custom code settings as Simulation Target
+    % set_param(paraModel, 'CustomSourceCode', '');   % Source file
+    % set_param(paraModel, 'CustomHeaderCode', '');   % Header file
+    % set_param(paraModel, 'CustomInclude', '');   % Include directories
+    % set_param(paraModel, 'CustomSource', '');   % Source files
+    % set_param(paraModel, 'CustomLibrary', '');   % Libraries
+    % set_param(paraModel, 'CustomLAPACKCallback', '');   % Custom LAPACK library callback
+    % set_param(paraModel, 'CustomDefine', '');   % Defines
+    % set_param(paraModel, 'CustomInitializer', '');   % Initialize function
+    % set_param(paraModel, 'CustomTerminator', '');   % Terminate function
     set_param(paraModel, 'CodeExecutionProfiling', 'off');   % Measure task execution time
     set_param(paraModel, 'CodeProfilingInstrumentation', 'off');   % Measure function execution times
     set_param(paraModel, 'CodeCoverageSettings', coder.coverage.CodeCoverageSettings([],'off','off','None'));   % Third-party tool
@@ -433,7 +433,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'RTWCAPISignals', 'off');   % Generate C API for signals
     set_param(paraModel, 'RTWCAPIStates', 'off');   % Generate C API for states
     set_param(paraModel, 'RateGroupingCode', 'on');   % RateGroupingCode
-    set_param(paraModel, 'ReplacementTypes', struct('double','','single','','int32','','int16','','int8','','uint32','','uint16','','uint8','','boolean','','int','','uint','','char',''));   % Data type names
+    set_param(paraModel, 'ReplacementTypes', struct('double','float64','single','float32','int32','sint32','int16','sint16','int8','sint8','uint32','','uint16','','uint8','','boolean','','int','','uint','','char',''));   % Data type names
     set_param(paraModel, 'SignalDisplayLevel', 10);   % Signal display level
     set_param(paraModel, 'SuppressUnreachableDefaultCases', 'off');   % Suppress generation of default cases for Stateflow switch statements if unreachable
     set_param(paraModel, 'BooleanTrueId', 'true');   % Boolean true identifier
@@ -472,5 +472,5 @@ function Configurate = Autosar_configuration()
     % HDL Coder
     hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-    Configurate = 'Autosar config successful, script version 1.0';
+    Configurate = 'Autosar config successful, script version 1.2';
 end
