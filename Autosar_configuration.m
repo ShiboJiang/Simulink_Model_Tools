@@ -2,8 +2,8 @@
 %   Simulink scrip for Autosar configuration set 
 %   MATLAB version: R2017a
 %   Please read the document <基于Autosar配置说明文档 v0.9> to learn details.
-%   Shibo Jiang    2018/8/29
-%   Version: 1.2
+%   Shibo Jiang    2018/11/3
+%   Version: 1.3
 %   Instructions: Run this scrip in matlab command,and one model should be 
 %                 opened at least. 
 %---------------------------------------------------------------------------
@@ -343,7 +343,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'CustomSymbolStrEmxType', 'emxArray_$M$N');   % EMX array types identifier format
     set_param(paraModel, 'CustomSymbolStrEmxFcn', 'emx$M$N');   % EMX array utility functions identifier format
     set_param(paraModel, 'MangleLength', 4);   % Minimum mangle length
-    set_param(paraModel, 'MaxIdLength', 31);   % Maximum identifier length
+    set_param(paraModel, 'MaxIdLength', 128);   % Maximum identifier length
     set_param(paraModel, 'InternalIdentifier', 'Shortened');   % System-generated identifiers
     set_param(paraModel, 'InlinedPrmAccess', 'Literals');   % Generate scalar inlined parameters as
     set_param(paraModel, 'SignalNamingRule', 'None');   % Signal naming
@@ -433,7 +433,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'RTWCAPISignals', 'off');   % Generate C API for signals
     set_param(paraModel, 'RTWCAPIStates', 'off');   % Generate C API for states
     set_param(paraModel, 'RateGroupingCode', 'on');   % RateGroupingCode
-    set_param(paraModel, 'ReplacementTypes', struct('double','float64','single','float32','int32','sint32','int16','sint16','int8','sint8','uint32','','uint16','','uint8','','boolean','','int','','uint','','char',''));   % Data type names
+    set_param(paraModel, 'ReplacementTypes', struct('double','','single','','int32','','int16','','int8','','uint32','','uint16','','uint8','','boolean','','int','','uint','','char',''));   % Data type names
     set_param(paraModel, 'SignalDisplayLevel', 10);   % Signal display level
     set_param(paraModel, 'SuppressUnreachableDefaultCases', 'off');   % Suppress generation of default cases for Stateflow switch statements if unreachable
     set_param(paraModel, 'BooleanTrueId', 'true');   % Boolean true identifier
@@ -450,7 +450,7 @@ function Configurate = Autosar_configuration()
     set_param(paraModel, 'TypeLimitIdReplacementHeaderFile', '');   % Type limit identifier replacement header file
     set_param(paraModel, 'AutosarCompilerAbstraction', 'off');   % Use AUTOSAR compiler abstraction macros
     set_param(paraModel, 'AutosarMatrixIOAsArray', 'off');   % Support root-level matrix I/O using one-dimensional arrays
-    set_param(paraModel, 'AutosarMaxShortNameLength', 64);   % Maximum SHORT-NAME length
+    set_param(paraModel, 'AutosarMaxShortNameLength', 128);   % Maximum SHORT-NAME length
     set_param(paraModel, 'AutosarSchemaVersion', '4.2');   % Generate XML file for schema version
 
     % Simulink Coverage
@@ -472,5 +472,5 @@ function Configurate = Autosar_configuration()
     % HDL Coder
     hdlset_param(paraModel,'GenerateHDLCode','off');   % Generate HDL code
 
-    Configurate = 'Autosar config successful, script version 1.2';
+    Configurate = 'Autosar config successful, script version 1.3';
 end
